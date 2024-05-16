@@ -22,7 +22,6 @@ else
         | sort -nr
 fi
 
-
 gcc $FILES -o ./bin/manafield $WARNS $LINKS $DEBUG $FSANS $CGENS -ftime-report \
     > tmp.txt 2>&1
 

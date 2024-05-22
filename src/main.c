@@ -1,7 +1,6 @@
-#include <stdio.h>
+#include "macroutils.h"
 
 int main(void) {
-    printf("Hello, World!\n");
     
     return 0;
 }

@@ -1,5 +1,5 @@
-#ifndef TK_MACROUTILS_H
-#define TK_MACROUTILS_H
+#ifndef TTK_MACROUTILS_H
+#define TTK_MACROUTILS_H
 
 #include <stdio.h>
 #include <libgen.h>
@@ -35,14 +35,16 @@
 #define ADD_CLAMP(x, add, max) MIN(x + add, max)
 
 /* Free `ptr`, then set `ptr` to `NULL`. */
-#define FREE_AND_ASSIGN_NULL(ptr) do { ptr = (free(ptr), NULL); } while (0)
+#define FREE(ptr) do { ptr = (free(ptr), NULL); } while (0)
 
-/* Print `msg: string` to stderr as log. */
-#define LOG(msg) fprintf(stderr, "[LOG][%s:%d:%s] \"%s\"\n", basename(__FILE__), __LINE__, __FUNCTION__, msg)
-/* Print `msg: string` to stderr as debug. */
-#define DEBUG(msg) fprintf(stderr, "[DBG][%s:%d:%s] \"%s\"\n", basename(__FILE__), __LINE__, __FUNCTION__, msg)
-/* Print `msg: string` to stderr as error. Does not exit, unlike `RUNTIME_ASSERT()`. */
-#define ERROR(msg) fprintf(stderr, "[DBG][%s:%d:%s] \"%s\"\n", basename(__FILE__), __LINE__, __FUNCTION__, msg)
+// /* Print `msg: string` to stderr as log. */
+// #define LOG(msg) fprintf(stderr, "[LOG][%s:%d:%s] \"%s\"\n", basename(__FILE__), __LINE__, __FUNCTION__, msg)
+// /* Print `msg: string` to stderr as debug. */
+// #define DEBUG(msg) fprintf(stderr, "[DBG][%s:%d:%s] \"%s\"\n", basename(__FILE__), __LINE__, __FUNCTION__, msg)
+// /* Print `msg: string` to stderr as error. Does not exit, unlike `RUNTIME_ASSERT()`. */
+// #define ERROR(msg) fprintf(stderr, "[DBG][%s:%d:%s] \"%s\"\n", basename(__FILE__), __LINE__, __FUNCTION__, msg)
+/* Print location information to stderr as debug. */
+#define WHERE fprintf(stderr, "[DBG][%s:%d:%s]\n", basename(__FILE__), __LINE__, __FUNCTION__)
 
 /* Assert that `cond: bool_expression` is true at compile time. */
 #define COMPILE_ASSERT(cond) do { (void)sizeof(char[1 - 2*!(cond)]); } while(0)
@@ -68,5 +70,7 @@
 
 /* Returns true if `a: float` and `b: float` are within an `epsilon: float` fraction of `a` of each other. */
 #define FLOAT_EQ(a, b, epsilon) (fabs(a - b) <= epsilon * fabs(a))
+
+#define byte char
 
 #endif

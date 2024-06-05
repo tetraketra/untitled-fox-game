@@ -1,5 +1,5 @@
-#ifndef TTK_HEX_DUMP_H
-#define TTK_HEX_DUMP_H
+#ifndef TTK_HEXDUMP_H
+#define TTK_HEXDUMP_H
 
 #include "macroutils.h"
 

@@ -1,22 +1,11 @@
 /* === HASH TABLE === */
 #if __has_include("ttk/hashtable.h") 
 #include "ttk/hashtable.h"
-#include "ttk/memtools.h"
+#include "ttk/hexdump.h"
 
 void __attribute__((constructor)) test_unsortedlist(void) {
     NOCODE
 
-    /*
-        NOTE TODO FIXME HACK DO THIS NEXT: WRITE A HEX DUMP UTILITY FUNCTION AS A MACRO!
-        PUT THIS NEW THING IN hashtable.c WHERE ITERATION LIMIT REACHED TO SHOW BYTES OF BAD KEY 
-    */ 
-    srand(12);
-    unsigned char* buffer = malloc(sizeof(unsigned char)*120);
-    for (size_t i = 0; i < 120; i++) {
-        buffer[i] = (int)RAND_FLOAT_UPTO(256);
-    }
-
-    hex_dump(stderr, buffer, 120, "buffer");
 }
 
 #endif

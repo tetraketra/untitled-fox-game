@@ -1,5 +1,5 @@
 #include "hashtable.h"
-#include "memtools.h"
+#include "hexdump.h"
 
 /* 
     FNV-1a hash function.

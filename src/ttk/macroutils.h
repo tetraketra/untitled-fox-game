@@ -5,6 +5,9 @@
 #include <libgen.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 
 
 /* Doubles `x: numeric` and returns it. Returns `1` if `x == 0`. */
@@ -37,12 +40,12 @@
 /* Free `ptr`, then set `ptr` to `NULL`. */
 #define FREE(ptr) do { ptr = (free(ptr), NULL); } while (0)
 
-// /* Print `msg: string` to stderr as log. */
-// #define LOG(msg) fprintf(stderr, "[LOG][%s:%d:%s] \"%s\"\n", basename(__FILE__), __LINE__, __FUNCTION__, msg)
-// /* Print `msg: string` to stderr as debug. */
-// #define DEBUG(msg) fprintf(stderr, "[DBG][%s:%d:%s] \"%s\"\n", basename(__FILE__), __LINE__, __FUNCTION__, msg)
-// /* Print `msg: string` to stderr as error. Does not exit, unlike `RUNTIME_ASSERT()`. */
-// #define ERROR(msg) fprintf(stderr, "[DBG][%s:%d:%s] \"%s\"\n", basename(__FILE__), __LINE__, __FUNCTION__, msg)
+/* Print `msg: string` to stderr as log. */
+#define LOG(fmt, args...) fprintf(stderr, "[LOG][%s:%d:%s]: " fmt, basename(__FILE__), __LINE__, __FUNCTION__, ##args)
+/* Print `msg: string` to stderr as debug. */
+#define DEBUG(fmt, args...) fprintf(stderr, "[DBG][%s:%d:%s]: " fmt, basename(__FILE__), __LINE__, __FUNCTION__, ##args)
+/* Print `msg: string` to stderr as error. Does not exit, unlike `RUNTIME_ASSERT()`. */
+#define ERROR(fmt, args...) fprintf(stderr, "[ERR][%s:%d:%s]: " fmt, basename(__FILE__), __LINE__, __FUNCTION__, ##args)
 /* Print location information to stderr as debug. */
 #define WHERE fprintf(stderr, "[DBG][%s:%d:%s]\n", basename(__FILE__), __LINE__, __FUNCTION__)
 
@@ -71,6 +74,12 @@
 /* Returns true if `a: float` and `b: float` are within an `epsilon: float` fraction of `a` of each other. */
 #define FLOAT_EQ(a, b, epsilon) (fabs(a - b) <= epsilon * fabs(a))
 
-#define byte char
+/* Empty statement that has more intentionality to it. */
+#define NOCODE ;
+/* Infinite loop which has more intentionality to it. */
+#define FOREVER while(true)
+
+/* More-intuitive inversion of `memcmp()`. */
+#define MEM_EQ(a, b, size) (!memcmp(a, b, size))
 
 #endif

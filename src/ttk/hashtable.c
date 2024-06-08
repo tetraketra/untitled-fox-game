@@ -1,5 +1,4 @@
 #include "hashtable.h"
-#include "hexdump.h"
 
 
 /* 
@@ -57,10 +56,18 @@ hashtable_t* hashtable_init(size_t buckets_n, size_t key_sb) {
     @returns Pointer to the value, or `NULL` if not found.
 */
 void* hashtable_get(hashtable_t* htable, void* key) {
+
+    /* Null guard. */
+    if (htable == NULL || key == NULL) {
+        return NULL;
+    }
+
+    /* Fetch the head entry. */
     hashtable_entry_t* entry = &(
         htable->buckets[hash_fnv1a(key, htable->key_sb) % htable->buckets_n]
     );
 
+    /* Find the specific entry and operate accordingly. */
     for (size_t it = -1; it < htable->entries_n; it++) {
 
         /* If you've found the correct entry, return its value. */
@@ -76,7 +83,7 @@ void* hashtable_get(hashtable_t* htable, void* key) {
         }
     }    
 
-    /* Handle illegal edge case. Protects against infinite loops. */
+    /* This shouldn't happen, but I need to know if it does. */
     DEBUG("Maximum iteration depth reached in hashtable_get, htable=%p key=%p.\n", htable, key);
     hex_dump(stderr, key, htable->key_sb, "key");
     return NULL;
@@ -105,10 +112,18 @@ inline bool hashtable_has(hashtable_t* htable, void* key) {
     @param `val_sb`: The size of the value to set in bytes.
 */
 void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
+    
+    /* Null guard. */
+    if (htable == NULL || key == NULL || val == NULL) {
+        return;
+    }
+
+    /* Fetch the head entry. */
     hashtable_entry_t* entry = &(
         htable->buckets[hash_fnv1a(key, htable->key_sb) % htable->buckets_n]
     );
 
+    /* Find the specific entry and operate accordingly. */
     for (size_t it = -1; it < htable->entries_n; it++) {
 
         /* If the entry is empty, copy everything over. */
@@ -144,10 +159,9 @@ void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
         }   entry = entry->next;
     }
 
-    /* Handle illegal edge case. Protects against infinite loops. */
+    /* This shouldn't happen, but I need to know if it does. */
     DEBUG("Maximum iteration depth reached in hashtable_set, htable=%p key=%p.\n", htable, key);
     hex_dump(stderr, key, htable->key_sb, "key");
-    return;
 }
 
 
@@ -160,10 +174,18 @@ void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
     @note This does not currently have pre-free functionality.
 */
 void hashtable_rid(hashtable_t* htable, void* key) {
+
+    /* Null guard. */
+    if (htable == NULL || key == NULL) {
+        return;
+    }
+
+    /* Fetch the head entry. */
     hashtable_entry_t* entry = &(
         htable->buckets[hash_fnv1a(key, htable->key_sb) % htable->buckets_n]
     );
 
+    /* Find the specific entry and operate accordingly. */
     hashtable_entry_t* previous_entry = entry;
     for (size_t it = -1; it < htable->entries_n; it++) {
 
@@ -182,15 +204,63 @@ void hashtable_rid(hashtable_t* htable, void* key) {
 
         /* Move to the next entry, or stop if there isn't one. */
         if (entry->next != NULL) {
-            hashtable_entry_t* entry_last_iter = entry;
+            previous_entry = entry;
             entry = entry->next;
         } else {
             return; /* done */ /* didn't find */
         }
     }    
 
-    /* Handle illegal edge case. Protects against infinite loops. */
+    /* This shouldn't happen, but I need to know if it does. */
     DEBUG("Maximum iteration depth reached in hashtable_rid, htable=%p key=%p.\n", htable, key);
     hex_dump(stderr, key, htable->key_sb, "key");
-    return NULL;
+}
+
+
+/*
+    Removes all entries from a hash table then frees it.
+
+    @param `htable`: The hash table.
+
+    @note This is currently implemented via full enumeration of all buckets.
+     The has hash table really should keep track of all its keys and remove
+     them one by one, but that's complicated and requires a dynamic array.
+     I'll write that when I need it. For now, this is fine.
+*/
+void hashtable_free(hashtable_t* htable) {
+
+    /* Null guard. */
+    if (htable == NULL) {
+        return;
+    }
+
+    /* Free all entries. */
+    for (size_t it = 0; it < htable->buckets_n; it++) {
+        _hashtable_entry_chain_free(htable->buckets[it].next);
+    }
+
+    /* Free the table. */
+    FREE(htable->buckets);
+    FREE(htable); /* done */ /* freed */
+}
+
+/* 
+    Utility for `hashtable_free`. 
+*/
+static inline void _hashtable_entry_chain_free(hashtable_entry_t* entry) {
+
+    /* Null guard. */
+    if (entry == NULL) {
+        return;
+    }
+    
+    /* Recursely free the linked list, end to start. */
+    if (entry->next != NULL) {
+        _hashtable_entry_chain_free(entry->next);
+    }
+
+    /* Free the entry. */
+    FREE(entry->key);
+    FREE(entry->val);
+    FREE(entry); /* done */ /* freed */
 }

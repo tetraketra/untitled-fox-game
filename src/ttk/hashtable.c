@@ -217,6 +217,28 @@ void hashtable_rid(hashtable_t* htable, void* key) {
 }
 
 
+/* 
+    Internal utility for `hashtable_free`. 
+*/
+static inline void _hashtable_entry_chain_free(hashtable_entry_t* entry) {
+
+    /* Null guard. */
+    if (entry == NULL) {
+        return;
+    }
+    
+    /* Recursely free the linked list, end to start. */
+    if (entry->next != NULL) {
+        _hashtable_entry_chain_free(entry->next);
+    }
+
+    /* Free the entry. */
+    FREE(entry->key);
+    FREE(entry->val);
+    FREE(entry); /* done */ /* freed */
+}
+
+
 /*
     Removes all entries from a hash table then frees it.
 
@@ -242,25 +264,4 @@ void hashtable_free(hashtable_t* htable) {
     /* Free the table. */
     FREE(htable->buckets);
     FREE(htable); /* done */ /* freed */
-}
-
-/* 
-    Utility for `hashtable_free`. 
-*/
-static inline void _hashtable_entry_chain_free(hashtable_entry_t* entry) {
-
-    /* Null guard. */
-    if (entry == NULL) {
-        return;
-    }
-    
-    /* Recursely free the linked list, end to start. */
-    if (entry->next != NULL) {
-        _hashtable_entry_chain_free(entry->next);
-    }
-
-    /* Free the entry. */
-    FREE(entry->key);
-    FREE(entry->val);
-    FREE(entry); /* done */ /* freed */
 }

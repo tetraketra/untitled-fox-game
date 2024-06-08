@@ -25,5 +25,6 @@ extern void*        hashtable_get(hashtable_t* htable, void* key);
 extern void         hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb);
 extern void         hashtable_rid(hashtable_t* htable, void* key);
 extern bool         hashtable_has(hashtable_t* htable, void* key);
+extern void         hashtable_free(hashtable_t* htable);
 
 #endif 

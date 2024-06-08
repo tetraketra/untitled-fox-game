@@ -15,7 +15,9 @@ echo "DEBUG: $DEBUG"
 
 echo "\n\nCounting..."
 if command -v scc &> /dev/null; then
-    scc
+    scc \
+        --not-match="(.gitignore|.gitattributes|dummy.txt|LICENSE|ext/*)" \
+        --no-large --large-line-count 3000
 else
     find ./ -type f \( -iname \*.c -o -iname \*.h \) \
         | xargs wc -l \

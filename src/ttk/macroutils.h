@@ -74,8 +74,11 @@
 /* Returns true if `a: float` and `b: float` are within an `epsilon: float` fraction of `a` of each other. */
 #define FLOAT_EQ(a, b, epsilon) (fabs(a - b) <= epsilon * fabs(a))
 
-/* Empty statement that has more intentionality to it. */
+/* Empty statements that have more intentionality to it. */
 #define NOCODE ;
+#define TODO ;
+#define FIXME ;
+
 /* Infinite loop which has more intentionality to it. */
 #define FOREVER while(true)
 

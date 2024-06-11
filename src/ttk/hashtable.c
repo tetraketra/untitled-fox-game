@@ -8,8 +8,6 @@
     @param `key_sb`: The size of the key in bytes.
 
     @returns Hashed `uint64_t`.
-
-    @note https://en.wikipedia.org/wiki/Hash_table#Separate_chaining
 */
 uint64_t hash_fnv1a(void* key, size_t key_sb) {
     uint64_t hash = 0xcbf29ce484222325;
@@ -36,7 +34,7 @@ uint64_t hash_fnv1a(void* key, size_t key_sb) {
     @note https://en.wikipedia.org/wiki/Hash_table#Separate_chaining
     @note The number of buckets is constant after creation (for now).
 */
-hashtable_t* hashtable_init(size_t buckets_n, size_t key_sb) {
+inline hashtable_t* hashtable_init(size_t buckets_n, size_t key_sb) {
     hashtable_t* htable = malloc(sizeof(hashtable_t));
     htable->buckets = calloc(buckets_n, sizeof(hashtable_entry_t));
     htable->buckets_n = buckets_n;

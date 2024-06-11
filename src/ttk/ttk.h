@@ -1,5 +1,5 @@
-#ifndef TTK_MACROUTILS_H
-#define TTK_MACROUTILS_H
+#ifndef TTK_H
+#define TTK_H
 
 #include <stdio.h>
 #include <libgen.h>

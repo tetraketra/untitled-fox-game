@@ -54,11 +54,8 @@ inline hashtable_t* hashtable_init(size_t buckets_n, size_t key_sb) {
     @returns Pointer to the value, or `NULL` if not found.
 */
 void* hashtable_get(hashtable_t* htable, void* key) {
-
-    /* Null guard. */
-    if (htable == NULL || key == NULL) {
-        return NULL;
-    }
+    RUNTIME_ASSERT(htable != NULL);
+    RUNTIME_ASSERT(key != NULL);
 
     /* Fetch the head entry. */
     hashtable_entry_t* entry = &(
@@ -66,7 +63,7 @@ void* hashtable_get(hashtable_t* htable, void* key) {
     );
 
     /* Find the specific entry and operate accordingly. */
-    for (size_t it = -1; it < htable->entries_n; it++) {
+    for (size_t it = 0; it < htable->entries_n + 1; it++) {
 
         /* If you've found the correct entry, return its value. */
         if (MEM_EQ(entry->key, key, htable->key_sb)) {
@@ -100,6 +97,21 @@ inline bool hashtable_has(hashtable_t* htable, void* key) {
     return hashtable_get(htable, key) != NULL;
 }
 
+inline float hashtable_calc_load_factor_all(hashtable_t* htable) {
+    return (float)htable->entries_n / (float)htable->buckets_n;
+}
+
+inline float hashtable_calc_load_factor_buckets(hashtable_t* htable) {
+    size_t filled_buckets = 0;
+    for (size_t it = 0; it < htable->buckets_n; it++) {
+        if (htable->buckets[it].key != NULL) {
+            filled_buckets++;
+        }
+    }
+
+    return (float)filled_buckets / (float)htable->buckets_n;
+}
+
 /*
     Sets an entry in a hash table. 
     If the key already exists in the table, its value will be overwritten.
@@ -110,11 +122,10 @@ inline bool hashtable_has(hashtable_t* htable, void* key) {
     @param `val_sb`: The size of the value to set in bytes.
 */
 void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
-    
-    /* Null guard. */
-    if (htable == NULL || key == NULL || val == NULL) {
-        return;
-    }
+    RUNTIME_ASSERT(htable != NULL);
+    RUNTIME_ASSERT(key != NULL);
+    RUNTIME_ASSERT(val != NULL);
+    RUNTIME_ASSERT(val_sb > 0);
 
     /* Fetch the head entry. */
     hashtable_entry_t* entry = &(
@@ -122,8 +133,7 @@ void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
     );
 
     /* Find the specific entry and operate accordingly. */
-    for (size_t it = -1; it < htable->entries_n; it++) {
-
+    for (size_t it = 0; it < htable->entries_n + 1; it++) {
         /* If the entry is empty, copy everything over. */
         if (entry->key == NULL) {
             entry->key = malloc(htable->key_sb);
@@ -155,11 +165,13 @@ void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
         if (entry->next == NULL) {
             entry->next = calloc(1, sizeof(hashtable_entry_t));
         }   entry = entry->next;
+
     }
 
     /* This shouldn't happen, but I need to know if it does. */
-    DEBUG("Maximum iteration depth reached in hashtable_set, htable=%p key=%p.\n", htable, key);
+    DEBUG("Maximum iteration depth reached in hashtable_set, htable=%p key=%p nentries=%zu.\n", htable, key, htable->entries_n);
     hex_dump(stderr, key, htable->key_sb, "key");
+    exit(EXIT_FAILURE);
 }
 
 
@@ -172,12 +184,9 @@ void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
     @note This does not currently have pre-free functionality.
 */
 void hashtable_rid(hashtable_t* htable, void* key) {
-
-    /* Null guard. */
-    if (htable == NULL || key == NULL) {
-        return;
-    }
-
+    RUNTIME_ASSERT(htable != NULL);
+    RUNTIME_ASSERT(key != NULL);
+    
     /* Fetch the head entry. */
     hashtable_entry_t* entry = &(
         htable->buckets[hash_fnv1a(key, htable->key_sb) % htable->buckets_n]
@@ -185,7 +194,7 @@ void hashtable_rid(hashtable_t* htable, void* key) {
 
     /* Find the specific entry and operate accordingly. */
     hashtable_entry_t* previous_entry = entry;
-    for (size_t it = -1; it < htable->entries_n; it++) {
+    for (size_t it = 0; it < htable->entries_n + 1; it++) {
 
         /* If you've found the correct entry, remove it. */
         if (MEM_EQ(entry->key, key, htable->key_sb)) {
@@ -219,12 +228,8 @@ void hashtable_rid(hashtable_t* htable, void* key) {
     Internal utility for `hashtable_free`. 
 */
 static inline void _hashtable_entry_chain_free(hashtable_entry_t* entry) {
+    RUNTIME_ASSERT(entry != NULL);
 
-    /* Null guard. */
-    if (entry == NULL) {
-        return;
-    }
-    
     /* Recursely free the linked list, end to start. */
     if (entry->next != NULL) {
         _hashtable_entry_chain_free(entry->next);
@@ -256,7 +261,9 @@ void hashtable_free(hashtable_t* htable) {
 
     /* Free all entries. */
     for (size_t it = 0; it < htable->buckets_n; it++) {
-        _hashtable_entry_chain_free(htable->buckets[it].next);
+        if (htable->buckets[it].next != NULL) {
+             _hashtable_entry_chain_free(htable->buckets[it].next);
+        }
     }
 
     /* Free the table. */

@@ -4,7 +4,39 @@
 #include "ttk/hexdump.h"
 
 static void __attribute__((constructor)) test_hashtable(void) {
-    NOCODE // TODO
+
+    /* TEST: Initialize a hash table. */
+    hashtable_t* htable = hashtable_init(100, sizeof(int));
+
+    /* TEST: Add entries to the hash table. */
+    for (size_t i = 0; i < 100; i++) {
+        int* key = malloc(sizeof(int));
+        *key = i+1;
+        int* val = malloc(sizeof(int));
+        *val = (i+1)*100;
+
+        hashtable_set(htable, key, val, sizeof(int));
+
+        FREE(key);
+        FREE(val);
+    }
+
+    /* TEST: Get entries from the hash table. */
+    for (size_t i = 0; i < 100; i++) {
+        int* key = malloc(sizeof(int));
+        *key = i+1;
+        int* val = hashtable_get(htable, key);
+        RUNTIME_ASSERT((*key)*100 == *val);
+
+        FREE(key);
+    }
+
+    /* TEST: Display the diagnostics. */
+    DEBUG("TEST: Load factor all: %f\n", hashtable_calc_load_factor_all(htable));
+    DEBUG("TEST: Load factor buckets: %f\n", hashtable_calc_load_factor_buckets(htable));
+
+    /* TEST: Clean up the hash table. */
+    hashtable_free(htable);
 }
 
 

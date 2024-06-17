@@ -68,7 +68,6 @@ static void __attribute__((constructor)) test_hashtable(void) {
 
 
 /* TODO
-    - test hashtable.c/hashtable.h
     - write `dynamicarray.c`/`dybamicarray.h`
         - implemented as dynmatically sized c-style array
         - should expose var-arg creation syntax

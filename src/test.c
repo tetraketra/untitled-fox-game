@@ -1,39 +1,66 @@
 /* === HASH TABLE === */
-#if __has_include("ttk/hashtable.h") 
+#if __has_include("ttk/hashtable.h")
 #include "ttk/hashtable.h"
 #include "ttk/hexdump.h"
 
 static void __attribute__((constructor)) test_hashtable(void) {
 
     /* TEST: Initialize a hash table. */
-    hashtable_t* htable = hashtable_init(100, sizeof(int));
+    hashtable_t* htable = hashtable_init(10, sizeof(int));
 
-    /* TEST: Add entries to the hash table. */
-    for (size_t i = 0; i < 100; i++) {
-        int* key = malloc(sizeof(int));
-        *key = i+1;
-        int* val = malloc(sizeof(int));
-        *val = (i+1)*100;
+    /* TEST: Add entries. */
+    for (size_t i = 0; i < 10000; i++) {
+        int key = i;
+        int val = i * 10;
 
-        hashtable_set(htable, key, val, sizeof(int));
-
-        FREE(key);
-        FREE(val);
+        hashtable_set(htable, &key, &val, sizeof(int));
     }
 
-    /* TEST: Get entries from the hash table. */
-    for (size_t i = 0; i < 100; i++) {
-        int* key = malloc(sizeof(int));
-        *key = i+1;
-        int* val = hashtable_get(htable, key);
-        RUNTIME_ASSERT((*key)*100 == *val);
+    /* TEST: Check and get entries. */
+    for (size_t i = 0; i < 10000; i++) {
+        int key = i;
+        int val = i * 10;
 
-        FREE(key);
+        RUNTIME_ASSERT(hashtable_has(htable, &key));
+        RUNTIME_ASSERT(*(int*)hashtable_get(htable, &key) == val);
     }
 
-    /* TEST: Display the diagnostics. */
-    DEBUG("TEST: Load factor all: %f\n", hashtable_calc_load_factor_all(htable));
-    DEBUG("TEST: Load factor buckets: %f\n", hashtable_calc_load_factor_buckets(htable));
+    /* TEST: Check the load factors. */
+    RUNTIME_ASSERT(FLOAT_EQ(hashtable_calc_load_factor(htable), 1000.0f, 0.01f));
+    RUNTIME_ASSERT(FLOAT_EQ(hashtable_calc_bucket_usage(htable), 1.0f, 0.01f));
+
+    /* TEST: Remove some entries without side effects. */
+    for (size_t i = 0; i < 10000; i++) {
+        int key = i;
+
+        if (i % 2 == 0) {
+            hashtable_rid(htable, &key);
+        }
+    }
+
+    for (size_t i = 0; i < 10000; i++) {
+        int key = i;
+        int val = i * 10;
+
+        if (i % 2 == 0) {
+            RUNTIME_ASSERT(!hashtable_has(htable, &key));
+            RUNTIME_ASSERT(hashtable_get(htable, &key) == NULL);
+        } else {
+            RUNTIME_ASSERT(hashtable_has(htable, &key));
+            RUNTIME_ASSERT(*(int*)hashtable_get(htable, &key) == val);
+        }
+    }
+
+    /* TEST: Overwrite all values and write new values. */
+    for (size_t i = 0; i < 10000; i++) {
+        int key = i;
+        int val = i * 100;
+
+        hashtable_set(htable, &key, &val, sizeof(int));
+
+        RUNTIME_ASSERT(hashtable_has(htable, &key));
+        RUNTIME_ASSERT(*(int*)hashtable_get(htable, &key) == val);
+    }
 
     /* TEST: Clean up the hash table. */
     hashtable_free(htable);
@@ -55,7 +82,7 @@ static void __attribute__((constructor)) test_hashtable(void) {
             - this makes it either a stack or a queue!
     - write bit_array? mayble
         - https://en.wikipedia.org/wiki/Bit_array
-        - you can bit shift by casting a series of bits to an int, shifting, 
+        - you can bit shift by casting a series of bits to an int, shifting,
           then comparing to original size's max (e.g. https://stackoverflow.com/questions/8534107/detecting-multiplication-of-uint64-t-integers-overflow-with-c)
         - bit arrays are useful for properties, compression algs, and bloom filters
 */

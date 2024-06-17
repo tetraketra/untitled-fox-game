@@ -3,7 +3,7 @@ WARNS="-W -Wall -Wextra -Wuninitialized -Wno-multichar -Wno-comment -Wno-mislead
 FSANS="-fsanitize=address -fsanitize=undefined -fsanitize-address-use-after-scope"
 CGENS=""
 LINKS="-lGL -lglfw -lm -lstdc++"
-DEBUG="-g3 -D NDEBUG"
+DEBUG="-g3 -D _DEBUG"
 
 echo "Executing with..."
 echo "FILES: $FILES"

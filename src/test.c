@@ -65,7 +65,90 @@ static void __attribute__((constructor)) test_hashtable(void) {
     /* TEST: Clean up the hash table. */
     hashtable_free(htable);
 }
+#endif
 
+
+/* === DOUBLY LINKED LIST === */
+#if __has_include("ttk/dlinkedlist.h")
+#include "ttk/dlinkedlist.h"
+
+static void __attribute__((constructor)) test_dlinkedlist(void) {
+    
+    /* TEST: Initialize a doubly linked list. */
+    dlinkedlist_t* dlinkedlist = dlinkedlist_init();
+    
+    /* TEST: Push entries to the head of the doubly linked list. */
+    for (size_t i = 5; i > 0; i--) {
+        int val = i*100;
+
+        dlinkedlist_push_head(dlinkedlist, &val, sizeof(int));
+    } /* push [500, ..., 100] to head to get list [100, ..., 500]. */
+
+    RUNTIME_ASSERT(dlinkedlist->entries_n == 5);
+
+    /* TEST: Push entries to the tail of the doubly linked list. */
+    for (size_t i = 6; i < 11; i++) {
+        int val = i*100;
+
+        dlinkedlist_push_tail(dlinkedlist, &val, sizeof(int));
+    } /* push [600, ..., 1000] to head to get list [100, ..., 1000]. */
+
+    RUNTIME_ASSERT(dlinkedlist->entries_n == 10);
+
+    /* TEST: Verify directly that all values were pushed correctly. */
+    dlinkedlist_entry_t* entry = dlinkedlist->head;
+    for (size_t i = 0; i < 10; i++) {
+        int* val = (int*)entry->data;
+
+        RUNTIME_ASSERT(*val == (int)(i+1)*100);
+
+        entry = entry->next;
+    }
+
+    /* TEST: Get values at specific indices. */
+    for (size_t i = 0; i < 10; i++) {
+        int val1 = (i+1)*100;
+        int* val2 = (int*)dlinkedlist_get(dlinkedlist, i);
+
+        RUNTIME_ASSERT(val1 == *val2);
+    }
+
+    /* TEST: Set values at specific indices. */
+    for (size_t i = 0; i < 10; i++) {
+        int val1 = (i+1)*1000;
+
+        dlinkedlist_set(dlinkedlist, i, &val1, sizeof(int));
+
+        int* val2 = (int*)dlinkedlist_get(dlinkedlist, i);
+
+        RUNTIME_ASSERT(val1 == *val2);
+    } /* List is now [1000, ..., 10000]. */
+
+    /* TEST: Pop values from the head of the doubly linked list. */
+    for (size_t i = 0; i < 3; i++) {
+        int* val = (int*)dlinkedlist_pop_head(dlinkedlist);
+
+        RUNTIME_ASSERT(*val == (int)(i+1)*1000);
+
+        FREE(val);
+    } /* List is now [4000, ..., 10000]. */
+
+    /* TEST: Pop values from the tail of the doubly linked list. */
+    for (size_t i = 10; i > 7; i--) {
+        int* val = (int*)dlinkedlist_pop_tail(dlinkedlist);
+
+        RUNTIME_ASSERT(*val == (int)(i)*1000);
+
+        FREE(val);
+    } /* List is now [4000, ..., 7000]. */
+
+    /* TEST: Verify length has changed. */
+    RUNTIME_ASSERT(dlinkedlist->entries_n == 4);
+
+    /* TEST: Free the doubly linked list. */
+    dlinkedlist_free(dlinkedlist);
+}
+#endif
 
 /* TODO
     - write `dynamicarray.c`/`dybamicarray.h`
@@ -74,16 +157,14 @@ static void __attribute__((constructor)) test_hashtable(void) {
             - e.g. `dyn_array_init(int, 1, 2, 3, 4, 5)` -> {1,2,3,4,5,0,0,0}
         - should expose set/get index which resizes to power of 2 which fits
             - e.g. `{1,2,3,0}`, set(1, 5) -> `{1,5,3,0}`, set(5, 4) -> {1,5,3,0,0,4,0,0,0}
-    - write `doublylinkedlist.c`/`doublylinkedlist.h`
-        - tracks head and tail
-        - should implement get element by index (with a note to just use an array if this is your goal)
-        - should expose `get`/`push`/`pop` to or from either the head or tail
-            - this makes it either a stack or a queue!
-    - write bit_array? mayble
+    - write bit_array? maybe
+        - ** maybe also a specific-length packing system? like "adjacent 5bit numbers" **
         - https://en.wikipedia.org/wiki/Bit_array
         - you can bit shift by casting a series of bits to an int, shifting,
           then comparing to original size's max (e.g. https://stackoverflow.com/questions/8534107/detecting-multiplication-of-uint64-t-integers-overflow-with-c)
         - bit arrays are useful for properties, compression algs, and bloom filters
+
 */
 
-#endif
+
+

@@ -9,7 +9,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-
 /* Suppress unused variable warnings. */
 #define IGNORE(x) ((void)(x))
 /* Empty statements that have more intentionality to it. */
@@ -56,12 +55,10 @@
 /* Assert that `cond: bool_expression` is true at compile time. */
 #define COMPILE_ASSERT(cond) do { (void)sizeof(char[1 - 2*!(cond)]); } while(0)
 
-/* If built in debug mode, assert that `cond: bool_expression` is true at runtime.*/
-#ifndef NDEBUG
-    /* Assert that `cond: bool_expression` is true at runtime. */
+/* Assert that `cond: bool_expression` is true at runtime.Does nothing if not in debug mode. */
+#ifdef _DEBUG
     #define RUNTIME_ASSERT(cond) do { if (!(cond)) { fprintf(stderr, "[ERR][%s:%d:%s] Assertion \"%s\" failed.\n", basename(__FILE__), __LINE__, __FUNCTION__, #cond); exit(-1); } } while(0)
 #else
-    /* Do nothing if not built in debug mode. */
     #define RUNTIME_ASSERT(cond) IGNORE(cond);
 #endif
 

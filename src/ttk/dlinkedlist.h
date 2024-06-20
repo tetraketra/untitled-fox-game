@@ -3,6 +3,18 @@
 
 #include "ttk.h"
 
+/*
+    === INFO ===
+    1. Doubly linked list.
+    2. Values may be different sizes.
+    3. All values are...
+        - copied into the doubly linked list.
+        - freed when the doubly linked list (or their specific entry) is freed.
+        - stored as void pointers.
+    4. Head/tail push/pop operations are O(1), exposed for stacks and queues.
+    5. Index get/set operations are O(n/2) (O(n)), exposed for lists. Avoid this.
+*/
+
 typedef struct dlinkedlist_entry_t dlinkedlist_entry_t;
 typedef struct dlinkedlist_entry_t {
     dlinkedlist_entry_t* next;

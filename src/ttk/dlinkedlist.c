@@ -23,25 +23,6 @@ static inline dlinkedlist_entry_t* dlinkedlist_entry_init(void* data, size_t dat
 
 
 /*
-    Push the first entry to a doubly linked list.
-    This will be both the head and tail.
-
-    @internal
-*/
-static inline void dlinkedlist_push_to_empty(dlinkedlist_t* dlinkedlist, void* data, size_t data_sb) {
-    RUNTIME_ASSERT(dlinkedlist != NULL);
-    RUNTIME_ASSERT(data != NULL);
-    RUNTIME_ASSERT(data_sb > 0);
-
-    dlinkedlist_entry_t* entry = dlinkedlist_entry_init(data, data_sb);
-
-    dlinkedlist->head = entry;
-    dlinkedlist->tail = entry;
-    dlinkedlist->entries_n++;
-}
-
-
-/*
     Initializes a doubly linked list on the heap.
     Values may be different sizes.
 
@@ -95,7 +76,11 @@ void dlinkedlist_push_head(dlinkedlist_t* dlinkedlist, void* data, size_t data_s
 
     /* Push special if list is empty, otherwise normal. */
     if (dlinkedlist->entries_n == 0) {
-        dlinkedlist_push_to_empty(dlinkedlist, data, data_sb);
+        dlinkedlist_entry_t* entry = dlinkedlist_entry_init(data, data_sb);
+
+        dlinkedlist->head = entry;
+        dlinkedlist->tail = entry;
+        dlinkedlist->entries_n++;
     } else {
         dlinkedlist_entry_t* entry = dlinkedlist_entry_init(data, data_sb);
 
@@ -121,7 +106,11 @@ void dlinkedlist_push_tail(dlinkedlist_t* dlinkedlist, void* data, size_t data_s
 
     /* Push special if list is empty, otherwise normal. */
     if (dlinkedlist->entries_n == 0) {
-        dlinkedlist_push_to_empty(dlinkedlist, data, data_sb);
+        dlinkedlist_entry_t* entry = dlinkedlist_entry_init(data, data_sb);
+
+        dlinkedlist->head = entry;
+        dlinkedlist->tail = entry;
+        dlinkedlist->entries_n++;
     } else {
         dlinkedlist_entry_t* entry = dlinkedlist_entry_init(data, data_sb);
 

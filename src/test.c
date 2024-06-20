@@ -163,7 +163,6 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
         - you can bit shift by casting a series of bits to an int, shifting,
           then comparing to original size's max (e.g. https://stackoverflow.com/questions/8534107/detecting-multiplication-of-uint64-t-integers-overflow-with-c)
         - bit arrays are useful for properties, compression algs, and bloom filters
-
 */
 
 

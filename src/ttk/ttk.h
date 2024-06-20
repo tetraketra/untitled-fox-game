@@ -9,8 +9,15 @@
 #include <stdbool.h>
 #include <string.h>
 
+/*
+    === INFO ===
+    1. Tetra's Toolkit, "ttk", is a series of macros and utilities built by @TetraKetra.
+    2. This file contains macros for use in all ttk modules.
+*/
+
 /* Suppress unused variable warnings. */
 #define IGNORE(x) ((void)(x))
+
 /* Empty statements that have more intentionality to it. */
 #define NOCODE ;
 #define TODO ;
@@ -49,30 +56,32 @@
 #define DEBUG(fmt, args...) fprintf(stderr, "[DBG][%s:%d:%s]: " fmt, basename(__FILE__), __LINE__, __FUNCTION__, ##args)
 /* Print `msg: string` to stderr as error. Does not exit, unlike `RUNTIME_ASSERT()`. */
 #define ERROR(fmt, args...) fprintf(stderr, "[ERR][%s:%d:%s]: " fmt, basename(__FILE__), __LINE__, __FUNCTION__, ##args)
-/* Print `msg: string` to stderr as error. Does not exit, unlike `RUNTIME_ASSERT()`. */
-#define TEST(fmt, args...) fprintf(stderr, "[TST][%s:%d:%s]: " fmt, basename(__FILE__), __LINE__, __FUNCTION__, ##args)
 
 /* Assert that `cond: bool_expression` is true at compile time. */
 #define COMPILE_ASSERT(cond) do { (void)sizeof(char[1 - 2*!(cond)]); } while(0)
 
-/* Assert that `cond: bool_expression` is true at runtime.Does nothing if not in debug mode. */
+/* Assert that `cond: bool_expression` is true at runtime. Does nothing if not in debug mode. */
 #ifdef _DEBUG
     #define RUNTIME_ASSERT(cond) do { if (!(cond)) { fprintf(stderr, "[ERR][%s:%d:%s] Assertion \"%s\" failed.\n", basename(__FILE__), __LINE__, __FUNCTION__, #cond); exit(-1); } } while(0)
 #else
     #define RUNTIME_ASSERT(cond) IGNORE(cond);
 #endif
 
-/* Returns true if `x: numeric` is a power of two, regular code version (makes an assignment). */
+/* Returns true if `x: numeric` is a power of two. */
 #define IS_POWER_OF_TWO(x) ({ typeof(x) _x = x; (_x) && !((_x) & ((_x) - 1)); })
-#define ASSERT_IS_POWER_OF_TWO(x) ( COMPILE_ASSERT( (x) && !((x) & ((x) - 1))) )
+/* Asserts that `x: numeric` is a power of two. */
+#define COMILE_ASSERT_IS_POWER_OF_TWO(x) ( COMPILE_ASSERT( (x) && !((x) & ((x) - 1))) )
 
 /* Returns the number of elements in an array. */
 #define ARRAY_LEN(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 /* Returns true if `a: float` and `b: float` are within an `epsilon: float` fraction of `a` of each other. */
-#define FLOAT_EQ(a, b, epsilon) (fabs(a - b) <= epsilon * fabs(a))
+#define FLOAT_EQ(a, b, epsilon) ({ typeof(a) _a = a; fabs(_a - b) <= epsilon * fabs(_a); })
 
 /* More-intuitive inversion of `memcmp()`. */
 #define MEM_EQ(a, b, size) (!memcmp(a, b, size))
+
+/* Force cast `val: any` to `type: type` with no actual conversion; just claim it's a `type`. */
+#define FORCE_CAST(val, type) ( *(type*)&val )
 
 #endif

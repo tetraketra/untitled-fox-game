@@ -10,24 +10,24 @@
     2. Keys *must* be the same size, but values may be different sizes.
     3. All keys and values are...
         - copied into the hash table.
-        - freed when the hash table is freed (or their specific entry is freed).
+        - freed when the hash table (or their specific entry) is freed.
         - stored as void pointers.
     4. The built-in hash function is FNV-1a.
 */
 
 typedef struct hashtable_entry_t hashtable_entry_t;
 typedef struct hashtable_entry_t {
-    void* key; /* The unhashed key. */
-    void* val; /* The stored value. */
-    size_t val_sb; /* The size of the value in bytes. */
-    hashtable_entry_t* next; /* Next entry in the chain. */
+    void* key;
+    void* val;
+    size_t val_sb;
+    hashtable_entry_t* next;
 } hashtable_entry_t;
 
 typedef struct hashtable_t {
-    hashtable_entry_t* buckets; /* Array of head entries. Not true linked list heads (for speed reasons). */
-    size_t buckets_n; /* Length of `buckets` head entries array. */
-    size_t entries_n; /* Count of items across all buckets. */
-    size_t key_sb; /* Size of all entries' unhashed key type in bytes.*/
+    hashtable_entry_t* buckets;
+    size_t buckets_n;
+    size_t entries_n;
+    size_t key_sb;
 } hashtable_t;
 
 extern uint64_t     hash_fnv1a(void* key, size_t key_sb);

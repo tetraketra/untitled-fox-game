@@ -32,7 +32,8 @@ else
 fi
 
 echo "\nReporting build times..."
-gcc-12 $FILES -o ./bin/manafield \
+mkdir -p ./bin
+gcc-12 $FILES -o ./bin/run_me \
     $WARNS $LINKS $DEBUG $FSANS $CGENS $INCLD \
     -ftime-report \
     > time.txt 2>&1

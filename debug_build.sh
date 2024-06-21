@@ -1,9 +1,13 @@
+sudo sysctl vm.mmap_rnd_bits = 28
+sudo sysctl vm.mmap_rnd_compat_bits = 8
+
 FILES=$(find . -print | grep -i "\.c" | tr -s '\n' ' ')
 WARNS="-W -Wall -Wextra -Wuninitialized -Wno-multichar -Wno-comment -Wno-misleading-indentation"
 FSANS="-fsanitize=address -fsanitize=undefined -fsanitize-address-use-after-scope"
 CGENS=""
-LINKS="-lGL -lglfw -lm -lstdc++"
+LINKS="-lGL -lglfw -lm"
 DEBUG="-g3 -D _DEBUG"
+INCLD="-iquote ./src/modules"
 
 echo "Executing with..."
 echo "FILES: $FILES"
@@ -12,6 +16,7 @@ echo "FSANS: $FSAN"
 echo "CGENS: $CGEN"
 echo "LINKS: $LINKS"
 echo "DEBUG: $DEBUG"
+echo "INCLD: $INCLD"
 
 echo "\n\nCounting..."
 if command -v scc &> /dev/null; then
@@ -24,11 +29,13 @@ else
         | sort -nr
 fi
 
-gcc $FILES -o ./bin/manafield $WARNS $LINKS $DEBUG $FSANS $CGENS -ftime-report \
-    > tmp.txt 2>&1
+gcc-12 $FILES -o ./bin/manafield \
+    $WARNS $LINKS $DEBUG $FSANS $CGENS $INCLD \
+    -ftime-report \
+    > time.txt 2>&1
 
 echo "\nReporting..."
-cat tmp.txt \
+cat time.txt \
     | grep -E --color=never '^(Time variable| [[:alnum:]])' \
     | cut -c1-36,69-79 \
     | sed 's/   wall/ /' \
@@ -41,11 +48,9 @@ cat tmp.txt \
         }'
 
 echo "\n\nBuilding..."
-cat tmp.txt \
+cat time.txt \
     | grep -v -E '^(Time variable| [[:alnum:]])' \
     | grep -v '^$'
 
-rm tmp.txt
-
 chmod a+x ./bin/manafield
-echo "\n\nExecute \"sh run.sh\" to start the program."
+echo "\n\nExecute \"sh debug_run.sh\" to start the program."

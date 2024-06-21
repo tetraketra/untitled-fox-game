@@ -12,7 +12,7 @@
 /*
     === INFO ===
     1. Tetra's Toolkit, "ttk", is a series of macros and utilities built by @TetraKetra.
-    2. This file contains macros for use in all ttk modules.
+    2. This file contains macros for use in all ttk sublibraries, plus wherever else you want.
 */
 
 /* Suppress unused variable warnings. */

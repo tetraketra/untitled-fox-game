@@ -33,7 +33,7 @@ fi
 
 echo "\nReporting build times..."
 mkdir -p ./bin
-gcc-12 $FILES -o ./bin/run_me \
+gcc-12 $FILES -o ./bin/untitledfoxgame \
     $WARNS $LINKS $DEBUG $FSANS $CGENS $INCLD \
     -ftime-report \
     > time.txt 2>&1

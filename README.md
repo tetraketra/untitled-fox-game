@@ -9,7 +9,7 @@ My personal hobby engine and game for practicing clean code, C, and OpenGL.
 .
 ├── bin
 │   └── # This is where the game goes.
-├──[ .sh .o .so ]── # Arcane unstable personal build scripts and jank. Magic. Do not touch. 
+├──[.sh/o/so]── # Arcane unstable personal build scripts and jank. Magic. Do not touch. 
 └── src
     ├── main.c
     └── modules

@@ -1,16 +1,23 @@
 #include "tgl.h"
+#include "tgl_callbacks.h"
 
-tgl_state_t tgl_state = {
+tgls_t tgls = {
     .window = {
-        .title = TGL_DEFAULT__WINDOW_TITLE,
-        .hint_v_maj = TGL_DEFAULT__WINDOW_HINT_V_MAJ,
-        .hint_v_min = TGL_DEFAULT__WINDOW_HINT_V_MIN,
-        .w = TGL_DEFAULT__WINDOW_W,
-        .h = TGL_DEFAULT__WINDOW_H
+        .title = TGLS_DEFAULT__WINDOW_TITLE,
+        .hint_v_maj = TGLS_DEFAULT__WINDOW_HINT_V_MAJ,
+        .hint_v_min = TGLS_DEFAULT__WINDOW_HINT_V_MIN,
+        .w = TGLS_DEFAULT__WINDOW_W,
+        .h = TGLS_DEFAULT__WINDOW_H
     }
 };
 
-static void __attribute__((constructor)) tgl_init(void) {
+
+/*
+    Initializes TGL with a basic window.
+
+    @note If this fails, something is *very* wrong.
+*/
+void tgl_init(void) {
 
     /* Initialize GLFW. */
     if (glfwInit() == GLFW_FALSE) {
@@ -18,24 +25,24 @@ static void __attribute__((constructor)) tgl_init(void) {
         exit(EXIT_FAILURE);
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, tgl_state.window.hint_v_maj);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, tgl_state.window.hint_v_min);
+    /* Initialize window. */
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, tgls.window.hint_v_maj);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, tgls.window.hint_v_min);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    /* Initialize window. */
-    tgl_state.window.window  = glfwCreateWindow(
-        tgl_state.window.w, tgl_state.window.h,
-        tgl_state.window.title, NULL, NULL
+    tgls.window.gflw_window = glfwCreateWindow(
+        tgls.window.w, tgls.window.h,
+        tgls.window.title, NULL, NULL
     );
 
-    if (tgl_state.window.window == NULL){
+    if (tgls.window.gflw_window == NULL){
         ERROR("Failed to create GLFW window!");
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    glfwMakeContextCurrent(tgl_state.window.window);
+    glfwMakeContextCurrent(tgls.window.gflw_window);
 
     /* Initialize GLAD. */
     if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) == 0){
@@ -44,24 +51,52 @@ static void __attribute__((constructor)) tgl_init(void) {
         exit(EXIT_FAILURE);
     }
 
-    /* get primary monitor and its attributes */
-    tgl_state.window.monitor = glfwGetPrimaryMonitor();
-    if (tgl_state.window.monitor == NULL) {
+    /* Initialize monitor. */
+    tgls.window.glfw_monitor = glfwGetPrimaryMonitor();
+    if (tgls.window.glfw_monitor == NULL) {
         ERROR("Failed to get primary monitor!");
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    tgl_state.window.vidmode = glfwGetVideoMode(tgl_state.window.monitor);
-    if (tgl_state.window.vidmode == NULL) {
+    /* Initialize monitor's viewmode. */
+    tgls.window.gflw_vidmode = glfwGetVideoMode(tgls.window.glfw_monitor);
+    if (tgls.window.gflw_vidmode == NULL) {
         ERROR("Failed to get primary monitor video mode!");
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    while (!glfwWindowShouldClose(tgl_state.window.window)) {
+    /* Configure default callbacks. */
+    glfwSetFramebufferSizeCallback(tgls.window.gflw_window, tgl_callback_window_resize);
+    glfwSetWindowPosCallback(tgls.window.gflw_window, tgl_callback_window_pos);
+
+    /* Configure textures. */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    /* Configure miscellaneous. */
+    glViewport(0, 0, tgls.window.w, tgls.window.h);
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.1f, 0.4f, 0.1f, 1.0f);
+}
+
+
+/*
+    Most-basic run loop with exit termination. 
+    For testing initialization.
+
+    @note If this fails, something is *very* wrong.
+*/
+void tgl_run_minimal(void) {
+    while (!glfwWindowShouldClose(tgls.window.gflw_window)) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwSwapBuffers(tgls.window.gflw_window);
         glfwPollEvents();
     };
+
     glfwTerminate();
     exit(EXIT_SUCCESS);
 }

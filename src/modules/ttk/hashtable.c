@@ -1,6 +1,5 @@
 #include "hashtable.h"
 
-
 /*
     FNV-1a hash function.
 
@@ -18,7 +17,6 @@ uint64_t hash_fnv1a(void* key, size_t key_sb) {
 
     return hash;
 }
-
 
 /*
     Initializes a hash table on the heap.
@@ -42,7 +40,6 @@ inline hashtable_t* hashtable_init(size_t buckets_n, size_t key_sb) {
 
     return htable;
 }
-
 
 /*
     Gets an entry from a hash table.
@@ -88,7 +85,6 @@ void* hashtable_get(hashtable_t* htable, void* key) {
     return NULL;
 }
 
-
 /*
     Checks if an entry exists in a hash table.
 
@@ -100,7 +96,6 @@ void* hashtable_get(hashtable_t* htable, void* key) {
 inline bool hashtable_has(hashtable_t* htable, void* key) {
     return hashtable_get(htable, key) != NULL;
 }
-
 
 /*
     Calculates the load factor of a hash table.
@@ -117,7 +112,6 @@ inline bool hashtable_has(hashtable_t* htable, void* key) {
 inline float hashtable_calc_load_factor(hashtable_t* htable) {
     return (float)htable->entries_n / (float)htable->buckets_n;
 }
-
 
 /*
     Calculates the bucket usage of a hash table.
@@ -140,7 +134,6 @@ inline float hashtable_calc_bucket_usage(hashtable_t* htable) {
 
     return (float)filled_buckets / (float)htable->buckets_n;
 }
-
 
 /*
     Sets a key-value pair in a hash table.
@@ -206,7 +199,6 @@ void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
     exit(EXIT_FAILURE);
 }
 
-
 /*
     Removes an entry from a hash table.
 
@@ -261,7 +253,6 @@ void hashtable_rid(hashtable_t* htable, void* key) {
     DEBUG("Maximum iteration depth reached in hashtable_rid, htable=%p key=%p.\n", htable, key);
     hex_dump(stderr, key, htable->key_sb, "key");
 }
-
 
 /*
     Removes all entries from a hash table then frees it.

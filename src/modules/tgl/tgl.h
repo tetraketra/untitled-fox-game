@@ -5,6 +5,7 @@
 #include <glad/glad.h> /* This order is required! (1) glad, (2) glfw */
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
+#include <time.h>
 
 /*
     === INFO ===

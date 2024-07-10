@@ -8,8 +8,7 @@ sudo sysctl vm.mmap_rnd_compat_bits=8 > /dev/null 2>&1
 FILES=$(find . -print | grep -i "\.c" | tr -s '\n' ' ')
 WARNS="-W -Wall -Wextra -Wuninitialized -Wno-multichar -Wno-comment -Wno-misleading-indentation"
 FSANS="-fsanitize=address -fsanitize=undefined -fsanitize-address-use-after-scope"
-CGENS=""
-LINKS="-lGL -lglfw -lm"
+LINKS="-lGL -lglfw -lm -lrt"
 DEBUG="-Og -g3 -D _DEBUG"
 INCLD="-iquote ./src/modules"
 
@@ -18,7 +17,6 @@ echo "\n\nExecuting with..."
 echo "FILES: $FILES"
 echo "WARNS: $WARNS"
 echo "FSANS: $FSAN"
-echo "CGENS: $CGEN"
 echo "LINKS: $LINKS"
 echo "DEBUG: $DEBUG"
 echo "INCLD: $INCLD"
@@ -42,7 +40,7 @@ echo "\nBuilding and reporting build time(s)..."
 BUILD_START=$(date +%s.%N)
 mkdir -p ./bin
 gcc-12 $FILES -o ./bin/untitledfoxgame \
-    $WARNS $LINKS $DEBUG $FSANS $CGENS $INCLD \
+    $WARNS $LINKS $DEBUG $FSANS $INCLD \
     -ftime-report \
     > time.txt 2>&1
 BUILD_END=$(date +%s.%N)

@@ -57,9 +57,14 @@ void tgl_init(void) {
         exit(EXIT_FAILURE);
     }
 
+    /* Initialize keys. */
+    #define X(glfw_key) TGLS_KEY_VAR(glfw_key)._glfw_key = glfw_key;
+    X_ALL_GLFW_KEYS
+
     /* Configure default callbacks. */
     glfwSetFramebufferSizeCallback(tgls.window.gflw_window, tgl_callback_window_resize);
     glfwSetWindowPosCallback(tgls.window.gflw_window, tgl_callback_window_pos);
+    glfwSetKeyCallback(tgls.window.gflw_window, tgl_callback_key);
 
     /* Configure textures. */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -75,7 +80,7 @@ void tgl_init(void) {
 
 
 /*
-    Most-basic run loop with exit termination. 
+    Most-basic run loop with exit termination.
     For testing initialization.
 
     @note If this fails, something is *very* wrong.

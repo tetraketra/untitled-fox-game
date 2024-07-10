@@ -12,5 +12,6 @@
 
 extern void     tgl_callback_window_resize(GLFWwindow* window, int w, int h);
 extern void     tgl_callback_window_pos(GLFWwindow* window, int x, int y);
+extern void     tgl_callback_key(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 #endif

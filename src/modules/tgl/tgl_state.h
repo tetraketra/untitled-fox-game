@@ -16,21 +16,18 @@ typedef struct tgls_window_t {
     GLFWwindow*         gflw_window;
     const char*         title;
 
-    /* Window Positioning */
-    int                 x; /* GLFWwindow x-coord. */
-    int                 y; /* GLFWwindow y-coord. */
-    int                 w; /* GLFWwindow width. */
-    int                 h; /* GLFWwindow height. */
+    int                 x;
+    int                 y;
+    int                 w;
+    int                 h;
 
-    /* Sensible Unfullscreening */
-    int                 x_restore; /* */
-    int                 y_restore; /* */
-    int                 w_restore; /* */
-    int                 h_restore; /* */
+    int                 x_restore;
+    int                 y_restore;
+    int                 w_restore;
+    int                 h_restore;
 
-    /* Version Hints */
-    int                 hint_v_maj; /* GLFWwindow GL major version hint. */
-    int                 hint_v_min; /* GLFWwindow GL minor version hint. */
+    int                 hint_v_maj;
+    int                 hint_v_min;
 } tgls_window_t;
 
 /* ---------------------------------------------------- */
@@ -40,17 +37,17 @@ typedef struct tgls_flags_t {
     bool vsync;
     bool focus;
     bool mouse_capture;
-    bool focus_regained; /* For clicking into the window. */
+    bool focus_regained;
 } tgls_flags_t;
 
 /* ---------------------------------------------------- */
 typedef struct timespec timespec_t;
 typedef struct tgls_key_t {
-    int _glfw_key; /* For use in `glfwGetKeyName`. */
+    int _glfw_key;
 
-    timespec_t last_key_down; /* Timespec of last `GLFW_PRESS`   event for this key. */
-    timespec_t last_key_up;   /* Timespec of last `GLFW_RELEASE` event for this key. */
-    bool is_down; /* Whether this key is currently held. */
+    timespec_t last_key_down;
+    timespec_t last_key_up;
+    bool is_down;
 } tgls_key_t;
 
 #define X_ALL_GLFW_KEYS \
@@ -114,11 +111,11 @@ typedef struct tgls_key_t {
     X(GLFW_KEY_LEFT_BRACKET) \
     X(GLFW_KEY_RIGHT_BRACKET) \
     X(GLFW_KEY_BACKSLASH) \
+    X(GLFW_KEY_SLASH) \
     X(GLFW_KEY_SEMICOLON) \
     X(GLFW_KEY_APOSTROPHE) \
     X(GLFW_KEY_COMMA) \
     X(GLFW_KEY_PERIOD) \
-    X(GLFW_KEY_SLASH) \
     /* Keypad Numbers */ \
     X(GLFW_KEY_KP_0) \
     X(GLFW_KEY_KP_1) \

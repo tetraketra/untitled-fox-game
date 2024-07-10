@@ -58,7 +58,9 @@ void tgl_init(void) {
     }
 
     /* Initialize keys. */
-    #define X(glfw_key) TGLS_KEY_VAR(glfw_key)._glfw_key = glfw_key;
+    #define X(glfw_key) \
+        TGLS_KEY_VAR(glfw_key)._glfw_key = glfw_key;
+    
     X_ALL_GLFW_KEYS
 
     /* Configure default callbacks. */

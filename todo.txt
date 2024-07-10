@@ -17,5 +17,6 @@
     - probably also some form of `was_processed`? Figure out later.
     - in gamedev, "key_move_forward" (or smth like that) references a given tgl keystate, changing where it points to rebind!
     - need a keypress callback which handles this in one giant switch case (X-macro time? If so, define, use, undef, all in function scope). 
+   == Definitely use an x-macro-like thing to define all the key structs and the container struct!
 - after above (^), implement a way to toggle from any of {windowed, fullscreen, windowed_fullscreen} to any of the same, preserving original window position.
     - will probably need to edit the `*_restore` usages in tgl_callback_window_resize and tgl_callback_window_pos.

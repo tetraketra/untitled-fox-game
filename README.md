@@ -28,5 +28,5 @@ untitled-fox-game
 ```sh
 git clone https://github.com/tetraketra/untitled-fox-game
 cd untitled-fox-game
-> sh ./release_build.sh
+sh ./release_build.sh
 ```

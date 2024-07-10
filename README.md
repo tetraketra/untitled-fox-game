@@ -2,8 +2,6 @@
 
 My personal hobby engine and game for practicing clean code, C, and OpenGL.
 
----
-
 # 🏗️ Project Structure 🏗️
 ```sh
 untitled-fox-game
@@ -21,8 +19,6 @@ untitled-fox-game
         └── ttk
             └── # "Tetra's Toolkit", general-use stuffs.
 ```
-
----
 
 # 🛠️ Build Process 🛠️
 ```sh

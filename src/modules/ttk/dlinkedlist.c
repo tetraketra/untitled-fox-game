@@ -1,6 +1,5 @@
 #include "dlinkedlist.h"
 
-
 /*
     Initializes a doubly linked list entry on the heap.
 
@@ -21,7 +20,6 @@ static inline dlinkedlist_entry_t* dlinkedlist_entry_init(void* data, size_t dat
     return entry;
 }
 
-
 /*
     Initializes a doubly linked list on the heap.
     Values may be different sizes.
@@ -37,7 +35,6 @@ dlinkedlist_t* dlinkedlist_init(void) {
 
     return dlinkedlist;
 }
-
 
 /*
     Frees a doubly linked list.
@@ -60,7 +57,6 @@ void dlinkedlist_free(dlinkedlist_t* dlinkedlist) {
     /* Free the container itself. */
     FREE(dlinkedlist);
 }
-
 
 /*
     Pushes a new data entry to the head of a doubly linked list.
@@ -91,7 +87,6 @@ void dlinkedlist_push_head(dlinkedlist_t* dlinkedlist, void* data, size_t data_s
     }
 }
 
-
 /*
     Pushes a new data entry to the tail of a doubly linked list.
 
@@ -120,7 +115,6 @@ void dlinkedlist_push_tail(dlinkedlist_t* dlinkedlist, void* data, size_t data_s
         dlinkedlist->entries_n++;
     }
 }
-
 
 /*
     Gets the value at a specific index in a doubly linked list.
@@ -159,7 +153,6 @@ void* dlinkedlist_get(dlinkedlist_t* dlinkedlist, size_t index) {
     /* Return the data. */
     return entry->data; /* done */ /* found */
 }
-
 
 /*
     Sets the value at a specific index in a doubly linked list.
@@ -205,7 +198,6 @@ void dlinkedlist_set(dlinkedlist_t* dlinkedlist, size_t index, void* data, size_
     return; /* done */ /* found and set */
 }
 
-
 /*
     Pops a value from the head of a doubly linked list.
 
@@ -239,7 +231,6 @@ void* dlinkedlist_pop_head(dlinkedlist_t* dlinkedlist) {
     /* Return the data. */
     return data; /* done */ /* found */
 }
-
 
 /*
     Pops a value from the tail of a doubly linked list.

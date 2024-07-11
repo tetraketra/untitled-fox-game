@@ -74,4 +74,6 @@ void tgl_callback_key(GLFWwindow* window, int key, int scancode, int action, int
     switch (key) {
         X_ALL_GLFW_KEYS
     }
+
+    #undef X
 }

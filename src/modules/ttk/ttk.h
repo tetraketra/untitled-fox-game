@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <wchar.h>
+#include <assert.h>
 
 /*
     === INFO ===
@@ -18,9 +20,11 @@
 /* Suppress unused variable warnings. */
 #define IGNORE(x) ((void)(x))
 
-/* Empty statements that have more intentionality to it. */
+/* Does nothing. Communicates "this should be empty". */
 #define NOCODE ;
+/* Does nothing. Communicates "this will eventually have something". */
 #define TODO ;
+/* Does nothing. Communicates "this needs to have something". */
 #define FIXME ;
 
 /* Doubles `x: numeric` and returns it. Returns `1` if `x == 0`. */
@@ -58,19 +62,21 @@
 #define ERROR(fmt, args...) fprintf(stderr, "[ERR][%s:%d:%s]: " fmt, basename(__FILE__), __LINE__, __FUNCTION__, ##args)
 
 /* Assert that `cond: bool_expression` is true at compile time. */
-#define COMPILE_ASSERT(cond) do { (void)sizeof(char[1 - 2*!(cond)]); } while(0)
-
-/* Assert that `cond: bool_expression` is true at runtime. Does nothing if not in debug mode. */
+#define COMPILE_ASSERT(cond) static_assert(cond)
 #ifdef _DEBUG
+    /* Assert that `cond: bool_expression` is true at runtime. Does nothing if not in debug mode (`-D _DEBUG`). */
     #define RUNTIME_ASSERT(cond) do { if (!(cond)) { fprintf(stderr, "[ERR][%s:%d:%s] Assertion \"%s\" failed.\n", basename(__FILE__), __LINE__, __FUNCTION__, #cond); exit(-1); } } while(0)
 #else
+    /* Assert that `cond: bool_expression` is true at runtime. Does nothing if not in debug mode (`-D _DEBUG`). */
     #define RUNTIME_ASSERT(cond) IGNORE(cond);
 #endif
 
+#define COMPILE_FAIL() COMPILE_ASSERT(1 == 0)
+
 /* Returns true if `x: numeric` is a power of two. */
 #define IS_POWER_OF_TWO(x) ({ typeof(x) _x = x; (_x) && !((_x) & ((_x) - 1)); })
-/* Asserts that `x: numeric` is a power of two. */
-#define COMILE_ASSERT_IS_POWER_OF_TWO(x) ( COMPILE_ASSERT( (x) && !((x) & ((x) - 1))) )
+/* Returns true if `x: numeric` is a power of two, but without assignments or calls. This is usable at compile time. */
+#define IS_POWER_OF_TWO_COMPILE(x) ( (x) && !((x) & ((x) - 1)) )
 
 /* Returns the number of elements in an array. */
 #define ARRAY_LEN(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -83,5 +89,18 @@
 
 /* Force cast `val: any` to `type: type` with no actual conversion; just claim it's a `type`. */
 #define FORCE_CAST(val, type) ( *(type*)&val )
+
+/* Combines two tokens, expanding any macros first. */
+#define CAT(a, b) CAT_(a, b)
+#define CAT_(a, b) a##b
+
+#define NARGS(...) NARGS_(__VA_ARGS__, _8ARG, _7ARG, _6ARG, _5ARG, _4ARG, _3ARG, _2ARG, _1ARG, _0ARG)
+#define NARGS_(_8, _7, _6, _5, _4, _3, _2, _1, n, ...) n
+    /* Returns a function name for use in a function definition called by `VARARG_CALL()`. */
+    #define VARARG_FN_NAME(func, n) func_##n##ARG
+    /* Calls a dedicated version of a function for the given number of arguments (see: `VARARG_FN_NAME()`) with said arguments . */
+    #define VARARG_CALL(func, ...) CAT(func, NARGS(__VA_ARGS__))(__VA_ARGS__)
+#undef NARGS
+#undef NARGS_
 
 #endif

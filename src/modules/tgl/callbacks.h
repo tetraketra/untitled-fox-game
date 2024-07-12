@@ -2,7 +2,7 @@
 #define TGH_CALLBACKS_H
 
 #include "tgl.h"
-#include "tgl_state.h"
+#include "state.h"
 
 /*
     === INFO ===

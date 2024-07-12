@@ -1,0 +1,11 @@
+{
+    "languages": ["english", "german", "chinese (simplified)"],
+    "n_langages": 3,    
+    "move forward": {
+        "is_translated": true,
+        "english": "move forward",
+        "german": "vorwärts gehen",
+        "chinese (simplified)": "前进"
+    },
+    "YOU CAN FIGURE OUT THE EXACT JSON FORMAT OF TRANSLATIONS LATER": true
+}

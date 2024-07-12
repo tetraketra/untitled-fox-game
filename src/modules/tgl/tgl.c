@@ -1,6 +1,6 @@
 #include "tgl.h"
-#include "tgl_callbacks.h"
-#include "tgl_state.h"
+#include "tgl/callbacks.h"
+#include "tgl/state.h"
 
 /*
     Initializes TGL with a basic window.

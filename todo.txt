@@ -1,4 +1,4 @@
-[[DATA_STRUCTURES]]
+[[DATA STRUCTURES]]
 - write `dynamicarray.c`/`dybamicarray.h`
     - implemented as dynmatically sized c-style array
     - should expose var-arg creation syntax
@@ -13,10 +13,16 @@
     - bit arrays are useful for properties, compression algs, and bloom filters
 
 [[TGL]]
-- tgls (tgl state) needs to track `last_keydown_when: time`, `last_keyup_when: time`, and `is_held: bool` for every reasonable key GLFW supports.
-    - probably also some form of `was_processed`? Figure out later.
-    - in gamedev, "key_move_forward" (or smth like that) references a given tgl keystate, changing where it points to rebind!
-    - need a keypress callback which handles this in one giant switch case (X-macro time? If so, define, use, undef, all in function scope). 
-   == Definitely use an x-macro-like thing to define all the key structs and the container struct!
-- after above (^), implement a way to toggle from any of {windowed, fullscreen, windowed_fullscreen} to any of the same, preserving original window position.
-    - will probably need to edit the `*_restore` usages in tgl_callback_window_resize and tgl_callback_window_pos.
+...
+
+[[JSON READER]]
+For keybinds I need keybind names. 
+For good keybind names I need collections of strings in languages.
+- 1. strings, both on file and in memory with bounds. string.h? Look into it
+- 2. languages, JSON parser?
+
+Make just a JSON reader for now, then later a JSON writer if wanted?
+- 1. No modification makes it *much* easier on me. 
+- 2. I can also put all children in a constant-length array!
+Will need to support escaped strings and be full utf-8 capable for other languages T>T
+>> https://stackoverflow.com/questions/16372615/reading-unicode-file-in-c <<

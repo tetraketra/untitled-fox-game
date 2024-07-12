@@ -1,4 +1,4 @@
-#include "tgl_state.h"
+#include "state.h"
 
 tgls_t tgls = {
     .window = {

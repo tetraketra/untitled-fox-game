@@ -1,11 +1,24 @@
 {
-    "languages": ["english", "german", "chinese (simplified)"],
-    "n_langages": 3,    
-    "move forward": {
-        "is_translated": true,
-        "english": "move forward",
-        "german": "vorwärts gehen",
-        "chinese (simplified)": "前进"
+    "languages": {
+        "supported": ["english", "german", "chinese (simplified)"],
+        "working on": ["spanish"]
     },
-    "YOU CAN FIGURE OUT THE EXACT JSON FORMAT OF TRANSLATIONS LATER": true
+    "dialogue": {
+        "main_character_move": {
+            "english": "move forward",
+            "german": "vorwärts gehen",
+            "chinese (simplified)": "前进"
+        },
+        "main_character_attack": {
+            "english": "I split at you.",
+            "german": "Ich habe mich von dir getrennt.",
+            "chinese (simplified)": "我对你分裂了。"
+        }
+    },
+
+    "testing_int": -13,
+    "testing_float": -19023.123,
+    "testing_int_array": [1, 2, 3, 4, 5],
+    "testing_bool": true,
+    "testing_other_bool": false
 }

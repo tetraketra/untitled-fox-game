@@ -24,5 +24,12 @@ For good keybind names I need collections of strings in languages.
 Make just a JSON reader for now, then later a JSON writer if wanted?
 - 1. No modification makes it *much* easier on me. 
 - 2. I can also put all children in a constant-length array!
+
+>> For the JSON reader, I want to read the entire file into one giant tree structure, then have functions for navigating it, finding members, etc. <<
+Retrieving a member should return a reference to that point within the tree.
+
+Will need wstring library to be done for values!
+
+[[WSTRING]]
 Will need to support escaped strings and be full utf-8 capable for other languages T>T
 >> https://stackoverflow.com/questions/16372615/reading-unicode-file-in-c <<

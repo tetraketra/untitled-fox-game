@@ -71,8 +71,6 @@
     #define RUNTIME_ASSERT(cond) IGNORE(cond);
 #endif
 
-#define COMPILE_FAIL() COMPILE_ASSERT(1 == 0)
-
 /* Returns true if `x: numeric` is a power of two. */
 #define IS_POWER_OF_TWO(x) ({ typeof(x) _x = x; (_x) && !((_x) & ((_x) - 1)); })
 /* Returns true if `x: numeric` is a power of two, but without assignments or calls. This is usable at compile time. */
@@ -103,4 +101,13 @@
 #undef NARGS
 #undef NARGS_
 
+/* Forces a compile to fail. Accepts any arguments. */
+#define COMPILE_FAIL(...) COMPILE_ASSERT(1==0)
+
+/* Used in `_Generic(..., default: >>HERE<<)` to make all compiler paths valid, even if they aren't correct. */
+#define GENERIC_DEFAULT definitely_valid_execution_path()
+char* definitely_valid_execution_path();
+
 #endif
+
+

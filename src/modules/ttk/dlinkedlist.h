@@ -19,7 +19,7 @@ typedef struct dlinkedlist_entry_t dlinkedlist_entry_t;
 typedef struct dlinkedlist_entry_t {
     dlinkedlist_entry_t* next;
     dlinkedlist_entry_t* prev;
-    void* data;
+    void*  data;
     size_t data_sb;
 } dlinkedlist_entry_t;
 

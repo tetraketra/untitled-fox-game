@@ -3,12 +3,15 @@
 /*
     FNV-1a hash function.
 
-    @param `key`: The key to hash.
-    @param `key_sb`: The size of the key in bytes.
+    @param `key`: The key to hash {`!NULL`}.
+    @param `key_sb`: The size of the key in bytes {`>0`}.
 
     @returns Hashed `uint64_t`.
 */
 uint64_t hash_fnv1a(void* key, size_t key_sb) {
+    RUNTIME_ASSERT(key != NULL);
+    RUNTIME_ASSERT(key_sb > 0);
+
     uint64_t hash = 0xcbf29ce484222325;
 
     for (size_t byte = 0; byte < key_sb; byte++) {
@@ -24,14 +27,17 @@ uint64_t hash_fnv1a(void* key, size_t key_sb) {
     Values may be different sizes.
     Keys *must* be the same size.
 
-    @param `buckets_n`: The *constant* number of buckets (for now).
-    @param `key_sb`: The size of the keys in bytes.
+    @param `buckets_n`: The *constant* number of buckets (for now) {`>0`}.
+    @param `key_sb`: The size of the keys in bytes {`>0`}.
 
     @returns Pointer to the new `hashtable_t`.
 
     @note https://en.wikipedia.org/wiki/Hash_table#Separate_chaining
 */
 inline hashtable_t* hashtable_init(size_t buckets_n, size_t key_sb) {
+    RUNTIME_ASSERT(buckets_n > 0);
+    RUNTIME_ASSERT(key_sb > 0);
+
     hashtable_t* htable = malloc(sizeof(hashtable_t));
     htable->buckets = calloc(buckets_n, sizeof(hashtable_entry_t));
     htable->buckets_n = buckets_n;
@@ -44,8 +50,8 @@ inline hashtable_t* hashtable_init(size_t buckets_n, size_t key_sb) {
 /*
     Gets an entry from a hash table.
 
-    @param `htable`: The hash table.
-    @param `key`: The key whose value to get.
+    @param `htable`: The hash table {`!NULL`}.
+    @param `key`: The key whose value to get {`!NULL`}.
 
     @returns Pointer to the value, or `NULL` if not found.
 */
@@ -88,12 +94,15 @@ void* hashtable_get(hashtable_t* htable, void* key) {
 /*
     Checks if an entry exists in a hash table.
 
-    @param `htable`: The hash table.
-    @param `key`: The key whose value to check.
+    @param `htable`: The hash table {`!NULL`}.
+    @param `key`: The key whose value to check {`!NULL`}.
 
     @returns `true` if the entry exists, `false` otherwise.
 */
 inline bool hashtable_has(hashtable_t* htable, void* key) {
+    RUNTIME_ASSERT(htable != NULL);
+    RUNTIME_ASSERT(key != NULL);
+
     return hashtable_get(htable, key) != NULL;
 }
 
@@ -103,13 +112,15 @@ inline bool hashtable_has(hashtable_t* htable, void* key) {
     most `0.8f`, but up to `3.0f`is technically
     acceptable.
 
-    @param `htable`: The hash table.
+    @param `htable`: The hash table {`!NULL`}.
 
     @returns The load factor as a float.
 
     @note https://en.wikipedia.org/wiki/Hash_table#Load_factor
 */
 inline float hashtable_calc_load_factor(hashtable_t* htable) {
+    RUNTIME_ASSERT(htable != NULL);
+
     return (float)htable->entries_n / (float)htable->buckets_n;
 }
 
@@ -120,11 +131,13 @@ inline float hashtable_calc_load_factor(hashtable_t* htable) {
     Compare with `hashtable_calc_load_factor`
     to analyze spread.
 
-    @param `htable`: The hash table.
+    @param `htable`: The hash table {`!NULL`}.
 
     @returns The load factor as described, as a float.
 */
 inline float hashtable_calc_bucket_usage(hashtable_t* htable) {
+    RUNTIME_ASSERT(htable != NULL);
+    
     size_t filled_buckets = 0;
     for (size_t it = 0; it < htable->buckets_n; it++) {
         if (htable->buckets[it].key != NULL) {
@@ -140,10 +153,10 @@ inline float hashtable_calc_bucket_usage(hashtable_t* htable) {
     Overwrites the old value if it exists.
     Copies (dupes) both the key and value.
 
-    @param `htable`: The hash table.
-    @param `key`: The key whose value to set.
-    @param `val`: The value to set.
-    @param `val_sb`: The size of the value in bytes.
+    @param `htable`: The hash table {`!NULL`}.
+    @param `key`: The key whose value to set {`!NULL`}.
+    @param `val`: The value to set {`!NULL`}.
+    @param `val_sb`: The size of the value in bytes {`>0`}.
 */
 void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
     RUNTIME_ASSERT(htable != NULL);
@@ -202,8 +215,8 @@ void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
 /*
     Removes an entry from a hash table.
 
-    @param `htable`: The hash table.
-    @param `key`: The key whose entry to remove.
+    @param `htable`: The hash table {`!NULL`}.
+    @param `key`: The key whose entry to remove {`!NULL`}.
 
     @note This does not currently have pre-free functionality.
 */
@@ -257,7 +270,7 @@ void hashtable_rid(hashtable_t* htable, void* key) {
 /*
     Removes all entries from a hash table then frees it.
 
-    @param `htable`: The hash table.
+    @param `htable`: The hash table {`!NULL`}.
 */
 void hashtable_free(hashtable_t* htable) {
     RUNTIME_ASSERT(htable != NULL);
@@ -283,4 +296,16 @@ void hashtable_free(hashtable_t* htable) {
     /* Free the table. */
     FREE(htable->buckets);
     FREE(htable); /* done */ /* freed */
+}
+
+/*
+    Compares if two cstrings are equal.
+
+    @param `cstr1`: The first cstring.
+    @param `cstr2`: The second cstring.
+
+    @returns `true` if they're equal, or `false` if they're not.
+*/
+inline bool cstring_compare(void* cstr1, void* cstr2) {
+    return strcmp((const char*)cstr1, (const char*)cstr2) == 0;
 }

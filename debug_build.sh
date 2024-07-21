@@ -8,7 +8,7 @@ sudo sysctl vm.mmap_rnd_compat_bits=8 > /dev/null 2>&1
 FILES=$(find . -print | grep -i "\.c" | tr -s '\n' ' ')
 WARNS="-W -Wall -Wextra -Wno-multichar -Wno-comment -Wno-misleading-indentation -Wno-uninitialized"
 FSANS="-fsanitize=address -fsanitize=undefined -fsanitize-address-use-after-scope"
-LINKS="-lGL -lglfw -lm -lrt"
+LINKS="-lGL -lglfw -lm -lrt -lc"
 DEBUG="-Og -g3 -D _DEBUG"
 INCLD="-iquote ./src/modules"
 

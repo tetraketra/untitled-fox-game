@@ -62,7 +62,7 @@ static void __attribute__((constructor)) test_hashtable(void) {
         RUNTIME_ASSERT(*(int*)hashtable_get(htable, &key) == val);
     }
 
-    /* TEST: Clean up the hash table. */
+    /* TEST: Free a hash table. */
     hashtable_free(htable);
 }
 #endif
@@ -141,10 +141,10 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
         FREE(val);
     } /* List is now [4000, ..., 7000]. */
 
-    /* TEST: Verify length has changed. */
+    /* TEST: Verify length has changed from previous two tests. */
     RUNTIME_ASSERT(dlinkedlist->entries_n == 4);
 
-    /* TEST: Free the doubly linked list. */
+    /* TEST: Free a doubly linked list. */
     dlinkedlist_free(dlinkedlist);
 }
 #endif

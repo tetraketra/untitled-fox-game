@@ -10,6 +10,8 @@
 #include <string.h>
 #include <wchar.h>
 #include <assert.h>
+#include <locale.h>
+#include <ctype.h>
 
 /*
     === INFO ===
@@ -110,4 +112,35 @@ char* definitely_valid_execution_path();
 
 #endif
 
+/*
+    This is just cool macro stuff I want to remember how to do.
+
+    // Function dispatch! //
+
+    #define TWO_ARG(dest, src) _Generic((src),                            \
+        char*:      wstring_append_cstring_slice(dest, src, 0, SIZE_MAX), \
+        wstring_t*: wstring_append_wstring_slice(dest, src, 0, SIZE_MAX), \
+        char:       wstring_append_char(desc, src),                       \
+        wchar_t:    wstring_append_wchar(dest, src),                      \
+        default: GENERIC_DEFAULT )
+    #define FOUR_ARG(dest, src, start, end) _Generic((src),              \
+        char*:      wstring_append_cstring_slice(dest, src, start, end), \
+        wstring_t*: wstring_append_wstring_slice(dest, src, start, end), \
+        default: GENERIC_DEFAULT )
+    #define WSTRING_APPEND_IMPL2(dest, src, arg1, arg2, func, ...) func
+    #define WSTRING_APPEND_IMPL1(dest, src, ...) \
+            WSTRING_APPEND_IMPL2(dest, src, ##__VA_ARGS__, FOUR_ARG, COMPILE_FAIL, TWO_ARG)(dest, src, ##__VA_ARGS__)
+
+    #define ONE_ARG(src) _Generic((src),                          \
+        char*:      wstring_from_cstring_slice(src, 0, SIZE_MAX), \
+        wstring_t*: wstring_from_wstring_slice(src, 0, SIZE_MAX), \
+        default: GENERIC_DEFAULT )
+    #define THREE_ARG(src, start, end) _Generic((src),           \
+        char*:      wstring_from_cstring_slice(src, start, end), \
+        wstring_t*: wstring_from_wstring_slice(src, start, end), \
+        default: GENERIC_DEFAULT )
+    #define WSTRING_FROM_IMPL2(src, arg1, arg2, func, ...) func
+    #define WSTRING_FROM_IMPL1(src, ...) \
+            WSTRING_FROM_IMPL2(src, ##__VA_ARGS__, THREE_ARG, COMPILE_FAIL, ONE_ARG)(src, ##__VA_ARGS__)
+*/
 

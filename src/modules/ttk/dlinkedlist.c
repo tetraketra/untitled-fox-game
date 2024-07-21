@@ -1,7 +1,10 @@
 #include "dlinkedlist.h"
 
 /*
-    Initializes a doubly linked list entry on the heap.
+    Initializes a doubly linked list entry on the heap with data.
+
+    @param `data`: The data to use {`!NULL`}.
+    @param `data_sb`: The size of the data in bytes {`>0`}.
 
     @returns Pointer to the new `dlinkedlist_entry_t`.
 
@@ -39,7 +42,7 @@ dlinkedlist_t* dlinkedlist_init(void) {
 /*
     Frees a doubly linked list.
 
-    @param `dlinkedlist`: The doubly linked list.
+    @param `dlinkedlist`: The doubly linked list {`!NULL`}.
 */
 void dlinkedlist_free(dlinkedlist_t* dlinkedlist) {
     RUNTIME_ASSERT(dlinkedlist != NULL);
@@ -61,9 +64,9 @@ void dlinkedlist_free(dlinkedlist_t* dlinkedlist) {
 /*
     Pushes a new data entry to the head of a doubly linked list.
 
-    @param `dlinkedlist`: The doubly linked list.
-    @param `data`: The data to push.
-    @param `data_sb`: The size of the data in bytes.
+    @param `dlinkedlist`: The doubly linked list {`!NULL`}.
+    @param `data`: The data to push {`!NULL`}.
+    @param `data_sb`: The size of the data in bytes {`>0`}.
 */
 void dlinkedlist_push_head(dlinkedlist_t* dlinkedlist, void* data, size_t data_sb) {
     RUNTIME_ASSERT(dlinkedlist != NULL);
@@ -90,9 +93,9 @@ void dlinkedlist_push_head(dlinkedlist_t* dlinkedlist, void* data, size_t data_s
 /*
     Pushes a new data entry to the tail of a doubly linked list.
 
-    @param `dlinkedlist`: The doubly linked list.
-    @param `data`: The data to push.
-    @param `data_sb`: The size of the data in bytes.
+    @param `dlinkedlist`: The doubly linked list {`!NULL`}.
+    @param `data`: The data to push {`!NULL`}.
+    @param `data_sb`: The size of the data in bytes {`>0`}.
 */
 void dlinkedlist_push_tail(dlinkedlist_t* dlinkedlist, void* data, size_t data_sb) {
     RUNTIME_ASSERT(dlinkedlist != NULL);
@@ -119,11 +122,10 @@ void dlinkedlist_push_tail(dlinkedlist_t* dlinkedlist, void* data, size_t data_s
 /*
     Gets the value at a specific index in a doubly linked list.
 
-    @param `dlinkedlist`: The doubly linked list.
-    @param `index`: The index of the value to get.
+    @param `dlinkedlist`: The doubly linked list {`!NULL`}.
+    @param `index`: The index of the value to get {`<dlinkedlist->entries_n`}.
 
-    @returns The value at the index as a void pointer, 
-             or `NULL` if the index is out of bounds.
+    @returns The value at the index as a void pointer, or `NULL` if the index is out of bounds.
 */
 void* dlinkedlist_get(dlinkedlist_t* dlinkedlist, size_t index) {
     RUNTIME_ASSERT(dlinkedlist != NULL);
@@ -157,8 +159,10 @@ void* dlinkedlist_get(dlinkedlist_t* dlinkedlist, size_t index) {
 /*
     Sets the value at a specific index in a doubly linked list.
 
-    @param `dlinkedlist`: The doubly linked list.
-    @param `index`: The index of the value to set.
+    @param `dlinkedlist`: The doubly linked list {`!NULL`}.
+    @param `index`: The index of the value to set {`<dlinkedlist->entries_n`}.
+    @param `data`: The data to set {`!NULL`}.
+    @param `data_sb`: The size of the data in bytes {`>1`}.
 */
 void dlinkedlist_set(dlinkedlist_t* dlinkedlist, size_t index, void* data, size_t data_sb) {
     RUNTIME_ASSERT(dlinkedlist != NULL);
@@ -201,7 +205,7 @@ void dlinkedlist_set(dlinkedlist_t* dlinkedlist, size_t index, void* data, size_
 /*
     Pops a value from the head of a doubly linked list.
 
-    @param `dlinkedlist`: The doubly linked list.
+    @param `dlinkedlist`: The doubly linked list {`!NULL`}.
 
     @returns The popped value as a void pointer, or `NULL` if empty.
 */
@@ -235,7 +239,7 @@ void* dlinkedlist_pop_head(dlinkedlist_t* dlinkedlist) {
 /*
     Pops a value from the tail of a doubly linked list.
 
-    @param `dlinkedlist`: The doubly linked list.
+    @param `dlinkedlist`: The doubly linked list {`!NULL`}.
 
     @returns The popped value as a void pointer, or `NULL` if empty.
 */
@@ -254,7 +258,8 @@ void* dlinkedlist_pop_tail(dlinkedlist_t* dlinkedlist) {
     /* Remove the current head from the dlinkedlist. */
     dlinkedlist->tail = dlinkedlist->tail->prev;
     dlinkedlist->tail->next = NULL;
-    if (!dlinkedlist->entries_n) { /* If this was the only entry, the head is affected too. */
+    /* If this was the only entry, the head is affected too. */
+    if (!dlinkedlist->entries_n) { 
         dlinkedlist->head = NULL;
     }
 

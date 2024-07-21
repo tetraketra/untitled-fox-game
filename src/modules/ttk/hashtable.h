@@ -17,8 +17,8 @@
 
 typedef struct hashtable_entry_t hashtable_entry_t;
 typedef struct hashtable_entry_t {
-    void* key;
-    void* val;
+    void*  key;
+    void*  val;
     size_t val_sb;
     hashtable_entry_t* next;
 } hashtable_entry_t;

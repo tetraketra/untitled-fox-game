@@ -3,10 +3,10 @@
 /*
     Dump memory as formatted hex.
 
-    @param `stream`: The stream to write the hex dump to (`stderr` recommended).
-    @param `buffer`: The buffer whose bytes to write to the stream.
-    @param `buf_sb`: The size of the buffer in bytes.
-    @param `desc`: An optional description of the buffer.
+    @param `stream`: The stream to write the hex dump to (`stderr` recommended) {`!NULL`}.
+    @param `buffer`: The buffer whose bytes to write to the stream {`!NULL`}.
+    @param `buf_sb`: The size of the buffer in bytes {`!NULL`}.
+    @param `desc`: An optional description of the buffer {`>0`}.
 */
 void hex_dump(FILE* stream, void* buffer, size_t buf_sb, char* desc) {
     RUNTIME_ASSERT(stream != NULL);

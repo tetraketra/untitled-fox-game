@@ -18,7 +18,8 @@
 
     "testing_int": -13,
     "testing_float": -19023.123,
-    "testing_int_array": [1, 2, 3, 4, 5],
+    "testing_array": [1, 5.3, "oh god why would you ever mix types", true, false, {"wtf":"why"}, null, [1,2,3]],
     "testing_bool": true,
-    "testing_other_bool": false
+    "testing_other_bool": false,
+    "testing_null": null
 }

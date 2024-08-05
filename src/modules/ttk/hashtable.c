@@ -124,7 +124,7 @@ void hashtable_insert(hashtable_t* htable, handle_t key, handle_t value, bool fr
             htable->count++;
             break;
         }
-
+        
         if (htable->key_eq(kv->key, key)) { /* same key, insert over, done */
             if (free_old_kv_if_overwritten) {
                 FREE_HANDLE_SAFELY_WITH_FALLBACK(kv->key);

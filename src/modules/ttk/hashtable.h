@@ -12,7 +12,6 @@
     5. Automatic resizing (doubling) is done when `max_load` is exceeded.
 */
 
-
 typedef struct key_value_pair_t {
     handle_t key; /* any sized key */
     handle_t value; /* any sized value */

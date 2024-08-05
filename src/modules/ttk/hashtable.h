@@ -3,11 +3,21 @@
 
 #include "ttk.h"
 
+/*
+    === INFO ===
+    1. Robin Hood open addressing with backshift deletion.
+    2. Everything is done via handles to minimize stale references.
+    3. All keys and values may be arbitrary sizes.
+    4. The built-in hash function is FNV-1a.
+    5. Automatic resizing (doubling) is done when `max_load` is exceeded.
+*/
+
+
 typedef struct key_value_pair_t {
     handle_t key; /* any sized key */
     handle_t value; /* any sized value */
 
-    size_t ideal_index; /* if no probing needed to happen */
+    size_t ideal_index; /* for psl */
 } key_value_pair_t;
 
 typedef struct hashtable_t {
@@ -15,8 +25,8 @@ typedef struct hashtable_t {
     size_t capacity; /* capacity */
     size_t count; /* count */
 
-    bool (*key_eq)(handle_t, handle_t);
-    float max_load;
+    bool (*key_eq)(handle_t, handle_t); /* function used to compare two key handles for equality */
+    float max_load; /* max load factor before size doubles */
 } hashtable_t;
 
 extern hashtable_t*     hashtable_init(size_t initial_capacity, bool (*key_eq)(handle_t, handle_t), float max_load);

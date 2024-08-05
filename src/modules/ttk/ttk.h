@@ -57,7 +57,8 @@ typedef struct handle_t {
 /* Returns the min of `a: numeric` and `b: numeric`. */
 #define MIN(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); _a < _b ? _a : _b; })
 
-#define UDISTANCE(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); (_a > b) ? (_a - _bb) : (_b - _a); })
+/* Returns the (positive) distance between `a: numeric` and `b:numeric`. Works with unsigned integers. Useful for `size_t` comparisons. */
+#define UDISTANCE(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); (_a > b) ? (_a - _b) : (_b - _a); })
 
 /* Clamp `x: numeric` between `min: numeric` and `max: numeric`. */
 #define CLAMP(x, min, max) ({ typeof(min) _min = (min); typeof(max) _max = (max); typeof(x) _x = (x); _x < _min ? _min : _x > _max ? _max : _x; })

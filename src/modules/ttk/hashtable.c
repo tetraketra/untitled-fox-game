@@ -1,9 +1,5 @@
 #include "hashtable.h"
 
-static inline size_t distance(size_t size1, size_t size2) {
-    return (size1 > size2) ? (size1 - size2) : (size2 - size1);
-}
-
 /*
     Internal FNV-1a hash function.
 
@@ -141,8 +137,8 @@ void hashtable_insert(hashtable_t* htable, handle_t key, handle_t value, bool fr
             break;
 
         } else { /* diff key, Robin Hood, check PSL */
-            size_t kv_psl = distance(index, kv->ideal_index); /* psl of existing kv */
-            size_t key_psl = distance(index, ideal_index); /* psl of new kv if inserted here */
+            size_t kv_psl = UDISTANCE(index, kv->ideal_index); /* psl of existing kv */
+            size_t key_psl = UDISTANCE(index, ideal_index); /* psl of new kv if inserted here */
 
             if (key_psl > kv_psl) { /* give spot to "poor" (far away) new key, swap, continue */
                 key_value_pair_t tmp_kv = *kv;
@@ -272,7 +268,7 @@ void hashtable_remove(hashtable_t* htable, handle_t key, bool free_value, bool f
             return;
         }
 
-        if (distance(index, kv->ideal_index) > 0) { /* psl > 0, shift back */
+        if (UDISTANCE(index, kv->ideal_index) > 0) { /* psl > 0, shift back */
             htable->buckets[(index-1)%htable->capacity] = *kv;
             *kv = (key_value_pair_t){0};
         } else { /* psl == 0, new chain start, current chain done shifting, done */

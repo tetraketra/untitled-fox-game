@@ -1,14 +1,18 @@
 #include "hashtable.h"
 
+static inline size_t distance(size_t size1, size_t size2) {
+    return (size1 > size2) ? (size1 - size2) : (size2 - size1);
+}
+
 /*
-    FNV-1a hash function.
+    Internal FNV-1a hash function.
 
     @param `key`: The key to hash {`!NULL`}.
     @param `key_sb`: The size of the key in bytes {`>0`}.
 
     @returns Hashed `uint64_t`.
 */
-uint64_t hash_fnv1a(void* key, size_t key_sb) {
+static uint64_t hash_fnv1a(void* key, size_t key_sb) {
     RUNTIME_ASSERT(key != NULL);
     RUNTIME_ASSERT(key_sb > 0);
 
@@ -22,290 +26,274 @@ uint64_t hash_fnv1a(void* key, size_t key_sb) {
 }
 
 /*
-    Initializes a hash table on the heap.
-    Open hashing with separate chaining.
-    Values may be different sizes.
-    Keys *must* be the same size.
+    Internal default key equality function.
 
-    @param `buckets_n`: The *constant* number of buckets (for now) {`>0`}.
-    @param `key_sb`: The size of the keys in bytes {`>0`}.
+    @param `key1`: The *handle* of the first key to compare.
+    @param `key2`: The *handle* of the second key to compare.
+
+    @returns `true` if the handles' data are equal, `false` otherwise.
+
+    @note Required Behavior:
+    @note If only one handle's data is null, false.
+    @note If both are null but they're the same size, true.
+    @note If their sizes are different, false.
+    @note If the handles' data is the same, true, otherwise false.
+    @note *see `KEY_EQ_REQUIRED_BEHAVIOR` for first three steps
+
+*/
+static bool key_eq_default(handle_t key1, handle_t key2) {
+    RUNTIME_ASSERT(key1.size != 0);
+    RUNTIME_ASSERT(key2.size != 0);
+
+    KEY_EQ_REQUIRED_BEHAVIOR(key1, key2);
+    return memcmp(key1.data, key2.data, key1.size) == 0;
+}
+
+/*
+    Initializes a hash table on the heap.
+    Round Robin hashing (open addressing).
+    Keys and values may be different sizes.
+    Thanks to handles, sizing up (see `max_load`) does not cause stale external references.
+
+    @param `initial_capacity`: The initial size of hash table. Doubles when `max_load` is exceeded.
+    @param `key_eq`: Nullable alternate key equality function. See `key_eq_default` for expected behavior.
+    @param `max_load`: The maximum load factor allowed before the hash table *automatically* rehashes and doubles in size.
 
     @returns Pointer to the new `hashtable_t`.
 
-    @note https://en.wikipedia.org/wiki/Hash_table#Separate_chaining
+    @note https://thenumb.at/Hashtables/
+    @note https://programming.guide/robin-hood-hashing.html
 */
-inline hashtable_t* hashtable_init(size_t buckets_n, size_t key_sb) {
-    RUNTIME_ASSERT(buckets_n > 0);
-    RUNTIME_ASSERT(key_sb > 0);
+hashtable_t* hashtable_init(size_t initial_capacity, bool (*key_eq)(handle_t, handle_t), float max_load) {
+    RUNTIME_ASSERT(initial_capacity != 0);
+    RUNTIME_ASSERT(max_load != 1.0f);
 
     hashtable_t* htable = malloc(sizeof(hashtable_t));
-    htable->buckets = calloc(buckets_n, sizeof(hashtable_entry_t));
-    htable->buckets_n = buckets_n;
-    htable->entries_n = 0;
-    htable->key_sb = key_sb;
+    *htable = (hashtable_t){0};
+
+    htable->buckets = calloc(initial_capacity, sizeof(key_value_pair_t));
+    htable->capacity = initial_capacity;
+    htable->max_load = max_load;
+    htable->key_eq = key_eq != NULL ? key_eq : key_eq_default;
+    htable->count = 0;
 
     return htable;
 }
 
 /*
-    Gets an entry from a hash table.
+    Frees a hash table.
 
-    @param `htable`: The hash table {`!NULL`}.
-    @param `key`: The key whose value to get {`!NULL`}.
-
-    @returns Pointer to the value, or `NULL` if not found.
+    @param `htable`: The hash table to free.
+    @param `free_values`: Whether to free table's stored handles' data. If true, stales all external references.
 */
-void* hashtable_get(hashtable_t* htable, void* key) {
+void hashtable_free(hashtable_t* htable, bool free_values) {
     RUNTIME_ASSERT(htable != NULL);
-    RUNTIME_ASSERT(key != NULL);
 
-    /* Fetch the head entry. */
-    hashtable_entry_t* entry = &(
-        htable->buckets[hash_fnv1a(key, htable->key_sb) % htable->buckets_n]
-    );
+    for (size_t i = 0; i < htable->capacity; i++) {
+        FREE_SAFELY_WITH_FALLBACK(htable->buckets[i].key.free_fn, htable->buckets[i].key.data);
 
-    /* Find the specific entry and operate accordingly. */
-    for (size_t i = 0; i < htable->entries_n + 1; i++) {
-
-        /* End of the chain. */
-        if (entry->key == NULL) {
-            return NULL; /* done */ /* didn't find */
-        }
-
-        /* Found entry with correct key. */
-        if (MEM_EQ(entry->key, key, htable->key_sb)) {
-            return entry->val; /* done */ /* found */
-        }
-
-        /* Next in chain, if exists. */
-        if (entry->next != NULL) {
-            entry = entry->next;
-        } else {
-            return NULL; /* done */ /* didn't find */
+        if (free_values) {
+            FREE_SAFELY_WITH_FALLBACK(htable->buckets[i].value.free_fn, htable->buckets[i].value.data);
         }
     }
 
-    /* If no early exit, something's wrong! */
-    ERROR("Maximum iteration depth reached in hashtable_get, htable=%p key=%p.\n", htable, key);
-    hex_dump(stderr, key, htable->key_sb, "key");
-    return NULL;
+    free(htable->buckets);
+    free(htable);
 }
 
 /*
-    Checks if an entry exists in a hash table.
+    Inserts an entry into a hash table.
+    Thanks to handles, this does not copy or move the data associated with the entry and does not stale any references.
 
-    @param `htable`: The hash table {`!NULL`}.
-    @param `key`: The key whose value to check {`!NULL`}.
-
-    @returns `true` if the entry exists, `false` otherwise.
+    @param `htable`: The hash table to insert into.
+    @param `key`: Any *handle* of the key you wish to insert.
+    @param `value`: Any *handle* of the value you wish to insert.
+    @param `free_old_kv_if_overwritten`: Whether to free the data of an existing key-value-pair's handles if overwritten. 
 */
-inline bool hashtable_has(hashtable_t* htable, void* key) {
+void hashtable_insert(hashtable_t* htable, handle_t key, handle_t value, bool free_old_kv_if_overwritten) {
     RUNTIME_ASSERT(htable != NULL);
-    RUNTIME_ASSERT(key != NULL);
+    RUNTIME_ASSERT(key.data != NULL);
+    RUNTIME_ASSERT(key.size != 0);
 
-    return hashtable_get(htable, key) != NULL;
-}
+    uint64_t ideal_index = hash_fnv1a(key.data, key.size)%htable->capacity;
+    size_t index = ideal_index;
 
-/*
-    Calculates the load factor of a hash table.
-    For speed reasons you'd want this to be at
-    most `0.8f`, but up to `3.0f`is technically
-    acceptable.
+    for (size_t i = 0; i < htable->capacity; i++) { /* insert via Robin Hood method */
+        key_value_pair_t* kv = &htable->buckets[index];
 
-    @param `htable`: The hash table {`!NULL`}.
-
-    @returns The load factor as a float.
-
-    @note https://en.wikipedia.org/wiki/Hash_table#Load_factor
-*/
-inline float hashtable_calc_load_factor(hashtable_t* htable) {
-    RUNTIME_ASSERT(htable != NULL);
-
-    return (float)htable->entries_n / (float)htable->buckets_n;
-}
-
-/*
-    Calculates the bucket usage of a hash table.
-    This is the number of buckets with at least
-    one value over the total number of buckets.
-    Compare with `hashtable_calc_load_factor`
-    to analyze spread.
-
-    @param `htable`: The hash table {`!NULL`}.
-
-    @returns The load factor as described, as a float.
-*/
-inline float hashtable_calc_bucket_usage(hashtable_t* htable) {
-    RUNTIME_ASSERT(htable != NULL);
-    
-    size_t filled_buckets = 0;
-    for (size_t it = 0; it < htable->buckets_n; it++) {
-        if (htable->buckets[it].key != NULL) {
-            filled_buckets++;
+        if (kv->key.data == NULL) { /* empty, insert new, done */
+            kv->key = key;
+            kv->value = value;
+            kv->ideal_index = ideal_index;
+            htable->count++;
+            break;
         }
+
+        if (htable->key_eq(kv->key, key)) { /* same key, insert over, done */
+            if (free_old_kv_if_overwritten) {
+                FREE_SAFELY_WITH_FALLBACK(kv->value.free_fn, kv->value.data);
+                FREE_SAFELY_WITH_FALLBACK(kv->key.free_fn, kv->key.data);
+            }
+
+            kv->key = key;
+            kv->value = value;
+            kv->ideal_index = ideal_index;
+            break;
+
+        } else { /* diff key, Robin Hood, check PSL */
+            size_t kv_psl = distance(index, kv->ideal_index); /* psl of existing kv */
+            size_t key_psl = distance(index, ideal_index); /* psl of new kv if inserted here */
+
+            if (key_psl > kv_psl) { /* give spot to "poor" (far away) new key, swap, continue */
+                key_value_pair_t tmp_kv = *kv;
+
+                kv->key = key;
+                kv->value = value;
+                kv->ideal_index = ideal_index;
+
+                key = tmp_kv.key;
+                value = tmp_kv.value;
+                ideal_index = tmp_kv.ideal_index;
+            }
+        }
+
+        index = (index + 1) % htable->capacity; /* linear probe */
     }
 
-    return (float)filled_buckets / (float)htable->buckets_n;
+    if (htable->count/(float)htable->capacity > 0.8) { /* load too high, double and rehash, also spooky magic number */
+        DEBUG("Rehash triggered in hashtable %p. Capacity doubling from %zu to %zu. Load %zu/%zu = %f.\n",
+            htable, 
+            htable->capacity, htable->capacity*2, 
+            htable->count, htable->capacity, htable->count/(float)htable->capacity
+        );
+
+        hashtable_t* tmp_htable = hashtable_init(htable->capacity*2, htable->key_eq, htable->max_load);
+
+        for (size_t i = 0; i < htable->capacity; i++) {
+            key_value_pair_t* kv = &htable->buckets[i];
+
+            if (kv->key.data != NULL) { /* rehash into temp hashtable */
+                hashtable_insert(tmp_htable, kv->key, kv->value, false);
+            }
+        }
+
+        free(htable->buckets);
+        *htable = *tmp_htable; /* overwrite with rehashed */
+        free(tmp_htable);
+
+        handle_t maybe_missing = hashtable_lookup(htable, key); 
+        if (maybe_missing.data == NULL) { /* held item is only sometimes in the table after rehash */
+            hashtable_insert(htable, key, value, free_old_kv_if_overwritten);
+        }
+    }
 }
 
 /*
-    Sets a key-value pair in a hash table.
-    Overwrites the old value if it exists.
-    Copies (dupes) both the key and value.
+    Fetches an entry from a hash table.
 
-    @param `htable`: The hash table {`!NULL`}.
-    @param `key`: The key whose value to set {`!NULL`}.
-    @param `val`: The value to set {`!NULL`}.
-    @param `val_sb`: The size of the value in bytes {`>0`}.
+    @param `htable`: The hash table to fetch from.
+    @param `key`: Any *handle* of the key you wish to free.
+
+    @returns A handle to the value associated with that key, or a `NULL` handle if not found. 
 */
-void hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb) {
+handle_t hashtable_lookup(hashtable_t* htable, handle_t key) {
     RUNTIME_ASSERT(htable != NULL);
-    RUNTIME_ASSERT(key != NULL);
-    RUNTIME_ASSERT(val != NULL);
-    RUNTIME_ASSERT(val_sb > 0);
+    RUNTIME_ASSERT(key.data != NULL);
+    RUNTIME_ASSERT(key.size != 0);
 
-    /* Fetch the head entry. */
-    hashtable_entry_t* entry = &(
-        htable->buckets[hash_fnv1a(key, htable->key_sb) % htable->buckets_n]
-    );
+    size_t position = hash_fnv1a(key.data, key.size)%htable->capacity;
 
-    /* Find the specific entry and operate accordingly. */
-    for (size_t i = 0; i < htable->entries_n + 1; i++) {
+    for (size_t i = 0; i < htable->capacity; i++) { /* find value */
+        key_value_pair_t* kv = &htable->buckets[position];
 
-        /* Found empty entry. */
-        if (entry->key == NULL) {
-            entry->key = malloc(htable->key_sb); /* key copy */
-            memcpy(entry->key, key, htable->key_sb);
-
-            entry->val = malloc(val_sb); /* val copy */
-            memcpy(entry->val, val, val_sb);
-            entry->val_sb = val_sb;
-
-            htable->entries_n++;
-
-            return; /* done */ /* written fresh */
+        if (kv->key.size == 0) { /* empty, not found, done */
+            return (handle_t){0};
         }
 
-        /* Found entry with correct key. */
-        if (MEM_EQ(entry->key, key, htable->key_sb)) {
-            FREE(entry->val);
-
-            entry->val = malloc(val_sb);
-            memcpy(entry->val, val, val_sb);
-            entry->val_sb = val_sb;
-
-            return; /* done */ /* overwritten */
+        if (htable->key_eq(kv->key, key)) { /* same key, done */
+            return kv->value;
         }
 
-        /* Next in chain, creating if not exists. */
-        if (entry->next == NULL) {
-            entry->next = calloc(1, sizeof(hashtable_entry_t));
-        }
-
-        entry = entry->next;
-
+        position = (position + 1) % htable->capacity; /* linear probe */
     }
 
-    /* If no early exit, something's wrong! */
-    ERROR("Maximum iteration depth reached in hashtable_set, htable=%p key=%p nentries=%zu.\n", htable, key, htable->entries_n);
-    hex_dump(stderr, key, htable->key_sb, "key");
-    exit(EXIT_FAILURE);
+    return (handle_t){0}; /* exhausted the table, done */
 }
 
 /*
     Removes an entry from a hash table.
 
-    @param `htable`: The hash table {`!NULL`}.
-    @param `key`: The key whose entry to remove {`!NULL`}.
-
-    @note This does not currently have pre-free functionality.
+    @param `htable`: The hash table to remove from.
+    @param `key`: Any *handle* of the key you wish to remove.
+    @param `free_value`: Whether to free the value associated with the key. If true, stales all external references. 
+    @param `free_passed_key_if_removed`: Whether to free the passed-in key if it is successfully removed. 
+     If you delete a value using a different-loc-in-memory-but-equivalent key, this saves you the `free(dlimbe_key)` call.
 */
-void hashtable_rid(hashtable_t* htable, void* key) {
+void hashtable_remove(hashtable_t* htable, handle_t key, bool free_value, bool free_passed_key_if_removed) {
     RUNTIME_ASSERT(htable != NULL);
-    RUNTIME_ASSERT(key != NULL);
+    RUNTIME_ASSERT(key.data != NULL);
+    RUNTIME_ASSERT(key.size != 0);
 
-    /* Fetch the head entry. */
-    hashtable_entry_t* entry = &(
-        htable->buckets[hash_fnv1a(key, htable->key_sb) % htable->buckets_n]
-    );
+    uint64_t original_index = hash_fnv1a(key.data, key.size)%htable->capacity;
+    size_t index = original_index;
 
-    /* Find the specific entry and operate accordingly. */
-    for (size_t i = 0; i < htable->entries_n + 1; i++) {
+    for (size_t i = 0; i < htable->capacity; i++) { /* find value to remove */
+        key_value_pair_t* kv = &htable->buckets[index];
 
-        /* End of chain. */
-        if (entry->key == NULL) {
-            return; /* done */ /* didn't find */
+        if (kv->key.size == 0) { /* empty, not found, done */
+            return;
         }
 
-        /* Found entry with correct key. */
-        if (MEM_EQ(entry->key, key, htable->key_sb)) {
-            FREE(entry->key);
-            FREE(entry->val);
-
-            htable->entries_n--;
-
-            /* If there's a `next`, shift its information into the current entry. */
-            if (entry->next != NULL) {
-                hashtable_entry_t* dangling = entry->next;
-                *entry = *entry->next;
-                FREE(dangling);
+        if (htable->key_eq(kv->key, key)) { /* same key, free, begin backshift */
+            if (free_passed_key_if_removed) {
+                FREE_SAFELY_WITH_FALLBACK(key.free_fn, key.data);
             }
 
-            return; /* done */ /* removed */
+            if (free_value) {
+                FREE_SAFELY_WITH_FALLBACK(kv->value.free_fn, kv->value.data);
+            }
+
+            FREE_SAFELY_WITH_FALLBACK(kv->key.free_fn, kv->key.data);
+
+            *kv = (key_value_pair_t){0};
+            htable->count--;
+
+            break; /* begin backshift */
         }
 
-        /* Next in chain, if exists. */
-        if (entry->next != NULL) {
-            entry = entry->next;
-        } else {
-            return; /* done */ /* didn't find */
-        }
+        index = (index + 1) % htable->capacity; /* linear probe */
     }
 
-    /* This shouldn't happen, but I need to know if it does. */
-    DEBUG("Maximum iteration depth reached in hashtable_rid, htable=%p key=%p.\n", htable, key);
-    hex_dump(stderr, key, htable->key_sb, "key");
+    index = (index + 1) % htable->capacity; /* move forward first, so we're looking at a movable value */
+    for (size_t i = 0; i < htable->capacity; i++) { /* backshift */
+        key_value_pair_t* kv = &htable->buckets[index];
+
+        if (kv->key.data == NULL) { /* empty, current chain done shifting, done */
+            return;
+        }
+
+        if (distance(index, kv->ideal_index) > 0) { /* psl > 0, shift back */
+            htable->buckets[(index-1)%htable->capacity] = *kv;
+            *kv = (key_value_pair_t){0};
+        } else { /* psl == 0, new chain start, current chain done shifting, done */
+            return;
+        }
+
+        index = (index + 1) % htable->capacity;
+    }
+
+    ERROR("Impossible execution point reached in `hashtable_remove` (did you mess up the logic?).\n");
+    return; /* default, !should never happen! */
 }
 
 /*
-    Removes all entries from a hash table then frees it.
+    Checks if an entry exists in a hash table.
 
-    @param `htable`: The hash table {`!NULL`}.
+    @param `htable`: The hash table to check.
+    @param `key`: The key to check for.
+
+    @returns `true` if the entry exists, `false` otherwise.
 */
-void hashtable_free(hashtable_t* htable) {
-    RUNTIME_ASSERT(htable != NULL);
-
-    /* Free all entries. */
-    for (size_t i = 0; i < htable->buckets_n; i++) {
-        hashtable_entry_t* next_entry = htable->buckets[i].next;
-
-        /* Iteratively free the bucket's chain (if exists). */
-        while (next_entry != NULL) {
-            hashtable_entry_t* temp = next_entry;
-            next_entry = next_entry->next;
-            FREE(temp->key);
-            FREE(temp->val);
-            FREE(temp);
-        }
-
-        /* Free the head. */
-        FREE(htable->buckets[i].key);
-        FREE(htable->buckets[i].val);
-    }
-
-    /* Free the table. */
-    FREE(htable->buckets);
-    FREE(htable); /* done */ /* freed */
-}
-
-/*
-    Compares if two cstrings are equal.
-
-    @param `cstr1`: The first cstring.
-    @param `cstr2`: The second cstring.
-
-    @returns `true` if they're equal, or `false` if they're not.
-*/
-inline bool cstring_compare(void* cstr1, void* cstr2) {
-    return strcmp((const char*)cstr1, (const char*)cstr2) == 0;
+inline bool hashtable_contains(hashtable_t* htable, handle_t key) {
+    return hashtable_lookup(htable, key).size != 0;
 }

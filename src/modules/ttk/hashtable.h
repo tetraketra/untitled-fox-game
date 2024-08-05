@@ -2,42 +2,34 @@
 #define TTK_HASHTABLE_H
 
 #include "ttk.h"
-#include "hexdump.h"
 
-/*
-    === INFO ===
-    1. Open hashing with separate chaining.
-    2. Keys *must* be the same size, but values may be different sizes.
-    3. All keys and values are...
-        - copied into the hash table.
-        - freed when the hash table (or their specific entry) is freed.
-        - stored as void pointers.
-    4. The built-in hash function is FNV-1a.
-*/
+typedef struct key_value_pair_t {
+    handle_t key; /* any sized key */
+    handle_t value; /* any sized value */
 
-typedef struct hashtable_entry_t hashtable_entry_t;
-typedef struct hashtable_entry_t {
-    void*  key;
-    void*  val;
-    size_t val_sb;
-    hashtable_entry_t* next;
-} hashtable_entry_t;
+    size_t ideal_index; /* if no probing needed to happen */
+} key_value_pair_t;
 
 typedef struct hashtable_t {
-    hashtable_entry_t* buckets;
-    size_t buckets_n;
-    size_t entries_n;
-    size_t key_sb;
+    key_value_pair_t* buckets; /* key-value pairs */
+    size_t capacity; /* capacity */
+    size_t count; /* count */
+
+    bool (*key_eq)(handle_t, handle_t);
+    float max_load;
 } hashtable_t;
 
-extern uint64_t     hash_fnv1a(void* key, size_t key_sb);
-extern hashtable_t* hashtable_init(size_t buckets_n, size_t key_sb);
-extern void*        hashtable_get(hashtable_t* htable, void* key);
-extern void         hashtable_set(hashtable_t* htable, void* key, void* val, size_t val_sb);
-extern void         hashtable_rid(hashtable_t* htable, void* key);
-extern bool         hashtable_has(hashtable_t* htable, void* key);
-extern void         hashtable_free(hashtable_t* htable);
-extern float        hashtable_calc_load_factor(hashtable_t* htable);
-extern float        hashtable_calc_bucket_usage(hashtable_t* htable);
+extern hashtable_t*     hashtable_init(size_t initial_capacity, bool (*key_eq)(handle_t, handle_t), float max_load);
+extern void             hashtable_free(hashtable_t* htable, bool free_values);
+extern void             hashtable_insert(hashtable_t* htable, handle_t key, handle_t value, bool free_old_kv_if_overwritten);
+extern handle_t         hashtable_lookup(hashtable_t* htable, handle_t key);
+extern bool             hashtable_contains(hashtable_t* htable, handle_t key);
+extern void             hashtable_remove(hashtable_t* htable, handle_t key, bool free_value, bool free_passed_key_if_removed);
+
+#define KEY_EQ_REQUIRED_BEHAVIOR(key1, key2) do { \
+    if ((key1.data == NULL) != (key2.data == NULL)) { return false; } \
+    if (key1.data == NULL && key2.data == NULL && key1.size == key2.size) { return true; } \
+    if (key1.size != key2.size) { return false; } \
+    } while (0)
 
 #endif

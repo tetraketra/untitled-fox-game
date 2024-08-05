@@ -10,13 +10,14 @@
     @returns Pointer to a new `json_object_t`.
 
 */
-json_object_t* json_read(const char* json) {
-    FIXME;
+// json_object_t* json_read(const char* json) {
+//     FIXME;
+//     IGNORE(json);
 
-    /* 
-        Read calls `json_parse_value`, which digests any value.
-        Since there's a single top-level value (typically object), 
-         this gives you the full nested (pointed) structure.
-        The private `_span` member will be useful for this.
-    */
-}
+//     /* 
+//         Read calls `json_parse_value`, which digests any value.
+//         Since there's a single top-level value (typically object), 
+//          this gives you the full nested (pointed) structure.
+//         The private `_span` member will be useful for this.
+//     */
+// }

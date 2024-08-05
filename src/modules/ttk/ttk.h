@@ -19,6 +19,19 @@
     2. This file contains macros for use in all ttk sublibraries, plus wherever else you want.
 */
 
+typedef struct handle_t {
+    void* data; /* pointer to pointer for constant base object addresses */
+    size_t size; /* size of data */
+    void (*free_fn)(void*); /* function which frees the data */
+} handle_t;
+
+/* Frees a handle's data using its `free_fn` if possible, `free` otherwise. */
+#define FREE_HANDLE_SAFELY_WITH_FALLBACK(handle) do { if (handle.data != NULL) {(handle.free_fn != NULL ? handle.free_fn : free)(handle.data); handle.data = NULL;} } while (0)
+/* Uses the input free function if it exists to free the pointer. Otherwises uses `free` to do the same. Does not free `NULL`. Useful for handles. */
+#define FREE_SAFELY_WITH_FALLBACK(free_fn, ptr) do { if (ptr != NULL) {(free_fn != NULL ? free_fn : free)(ptr); ptr = NULL;} } while (0)
+/* Free `ptr`, then set `ptr` to `NULL`. */
+#define FREE(ptr) do { free(ptr); ptr = NULL; } while (0)
+
 /* Suppress unused variable warnings. */
 #define IGNORE(x) ((void)(x))
 
@@ -50,9 +63,6 @@
 #define SUB_CLAMP(x, sub, min) MAX(x - sub, min)
 /* Add `add: numeric` to `value: numeric`, clamped to `max`: numeric. */
 #define ADD_CLAMP(x, add, max) MIN(x + add, max)
-
-/* Free `ptr`, then set `ptr` to `NULL`. */
-#define FREE(ptr) do { ptr = (free(ptr), NULL); } while (0)
 
 /* Print location information to stderr as debug. */
 #define WHERE fprintf(stderr, "[DBG][%s:%d:%s]\n", basename(__FILE__), __LINE__, __FUNCTION__)

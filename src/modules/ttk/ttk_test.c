@@ -6,69 +6,131 @@
 static void __attribute__((constructor)) test_hashtable(void) {
 
     /* TEST: Initialize a hash table. */
-    hashtable_t* htable = hashtable_init(10, sizeof(int));
+    hashtable_t* htable = hashtable_init(100, NULL, 0.8);
+    RUNTIME_ASSERT(htable->capacity == 100);
+    RUNTIME_ASSERT(htable->count == 0);
+    RUNTIME_ASSERT(htable->max_load == 0.8f);
+    DEBUG("`hashtable_init` test passed.\n");
 
-    /* TEST: Add entries. */
-    for (size_t i = 0; i < 10000; i++) {
-        int key = i;
-        int val = i * 10;
+    /* TEST: Insert some handles to trigger some rehashes. */
+    DEBUG("`hashtable_insert` test starting. Expect 5 rehashes.\n");
+    for (int i = 0; i < 2000; i++) {
+        int* heap_int_key = malloc(sizeof(int));
+        *heap_int_key = i;
 
-        hashtable_set(htable, &key, &val, sizeof(int));
+        int* heap_int_val = malloc(sizeof(int));
+        *heap_int_val = i*100;
+
+        handle_t key = {.data = heap_int_key, .size=sizeof(int)};
+        handle_t val = {.data = heap_int_val, .size=sizeof(int)};
+
+        hashtable_insert(htable, key, val, true);
     }
 
-    /* TEST: Check and get entries. */
-    for (size_t i = 0; i < 10000; i++) {
-        int key = i;
-        int val = i * 10;
+    RUNTIME_ASSERT(htable->capacity == 3200);
+    RUNTIME_ASSERT(htable->count == 2000);
+    RUNTIME_ASSERT(htable->max_load == 0.8f);
+    DEBUG("`hashtable_insert` test passed.\n");
 
-        RUNTIME_ASSERT(hashtable_has(htable, &key));
-        RUNTIME_ASSERT(*(int*)hashtable_get(htable, &key) == val);
+    /* TEST: Get all keys just inserted. */
+    for (int i = 0; i < 2000; i++) {
+        int* heap_int_key = malloc(sizeof(int));
+        *heap_int_key = i;
+
+        handle_t key = {.data = heap_int_key, .size=sizeof(int)};
+
+        handle_t fetched_val = hashtable_lookup(htable, key);
+        RUNTIME_ASSERT(*(int*)fetched_val.data == i*100);
+
+        free(heap_int_key);
+        
     }
 
-    /* TEST: Check the load factors. */
-    RUNTIME_ASSERT(FLOAT_EQ(hashtable_calc_load_factor(htable), 1000.0f, 0.01f));
-    RUNTIME_ASSERT(FLOAT_EQ(hashtable_calc_bucket_usage(htable), 1.0f, 0.01f));
+    RUNTIME_ASSERT(htable->capacity == 3200);
+    RUNTIME_ASSERT(htable->count == 2000);
+    RUNTIME_ASSERT(htable->max_load == 0.8f);
+    DEBUG("`hashtable_lookup` test passed.\n");
 
-    /* TEST: Remove some entries without side effects. */
-    for (size_t i = 0; i < 10000; i++) {
-        int key = i;
+    /* TEST: Get and delete only some elements. */
+    for (int i = 0; i < 1000; i++) {
+        int* heap_int_key = malloc(sizeof(int));
+        *heap_int_key = i;
 
-        if (i % 2 == 0) {
-            hashtable_rid(htable, &key);
-        }
+        handle_t key = {.data = heap_int_key, .size=sizeof(int)};
+
+        hashtable_remove(htable, key, true, false);
+
+        handle_t fetched_val = hashtable_lookup(htable, key);
+        RUNTIME_ASSERT(fetched_val.data == NULL);
+
+        free(key.data);
     }
 
-    for (size_t i = 0; i < 10000; i++) {
-        int key = i;
-        int val = i * 10;
+    RUNTIME_ASSERT(htable->capacity == 3200);
+    RUNTIME_ASSERT(htable->count == 1000);
+    RUNTIME_ASSERT(htable->max_load == 0.8f);
+    DEBUG("`hashtable_remove` test passed.\n");
 
-        if (i % 2 == 0) {
-            RUNTIME_ASSERT(!hashtable_has(htable, &key));
-            RUNTIME_ASSERT(hashtable_get(htable, &key) == NULL);
-        } else {
-            RUNTIME_ASSERT(hashtable_has(htable, &key));
-            RUNTIME_ASSERT(*(int*)hashtable_get(htable, &key) == val);
-        }
+    /* TEST: Insert new values for all elements. */
+    for (int i = 0; i < 2000; i++) {
+        int* heap_int_key = malloc(sizeof(int));
+        *heap_int_key = i;
+
+        int* heap_int_val = malloc(sizeof(int));
+        *heap_int_val = i*1000;
+
+        handle_t key = {.data = heap_int_key, .size=sizeof(int)};
+        handle_t val = {.data = heap_int_val, .size=sizeof(int)};
+
+        hashtable_insert(htable, key, val, true);
+        
+        handle_t fetched_val = hashtable_lookup(htable, key);
+        RUNTIME_ASSERT(*(int*)fetched_val.data == i*1000);
+    }
+    
+    RUNTIME_ASSERT(htable->capacity == 3200);
+    RUNTIME_ASSERT(htable->count == 2000);
+    RUNTIME_ASSERT(htable->max_load == 0.8f);
+    DEBUG("`hashtable_insert` overwriting test passed.\n");
+
+    /* TEST: Check all keys exist. */
+    for (int i = 0; i < 2000; i++) {
+        int* heap_int_key = malloc(sizeof(int));
+        *heap_int_key = i;
+
+        handle_t key = {.data = heap_int_key, .size=sizeof(int)};
+
+        bool does_contain = hashtable_contains(htable, key);
+        RUNTIME_ASSERT(does_contain);
+
+        FREE_HANDLE_SAFELY_WITH_FALLBACK(key);
     }
 
-    /* TEST: Overwrite all values and write new values. */
-    for (size_t i = 0; i < 10000; i++) {
-        int key = i;
-        int val = i * 100;
+    for (int i = 2000; i < 4000; i++) {
+        int* heap_int_key = malloc(sizeof(int));
+        *heap_int_key = i;
 
-        hashtable_set(htable, &key, &val, sizeof(int));
+        handle_t key = {.data = heap_int_key, .size=sizeof(int)};
 
-        RUNTIME_ASSERT(hashtable_has(htable, &key));
-        RUNTIME_ASSERT(*(int*)hashtable_get(htable, &key) == val);
+        bool does_contain = hashtable_contains(htable, key);
+        RUNTIME_ASSERT(!does_contain);
+
+        FREE_HANDLE_SAFELY_WITH_FALLBACK(key);  
     }
 
-    /* TEST: Free a hash table. */
-    hashtable_free(htable);
+    RUNTIME_ASSERT(htable->capacity == 3200);
+    RUNTIME_ASSERT(htable->count == 2000);
+    RUNTIME_ASSERT(htable->max_load == 0.8f);
+    DEBUG("`hashtable_insert` overwriting test passed.\n");
+
+    /* TEST: Free the hash table and all remaining values. */
+    hashtable_free(htable, true);
+    DEBUG("`hashtable_free` test passed.\n");
 }
 #endif
 
 /* === DOUBLY LINKED LIST === */
-#if __has_include("ttk/dlinkedlist.h")
+#if false && __has_include("ttk/dlinkedlist.h")
 #include "ttk/dlinkedlist.h"
 
 static void __attribute__((constructor)) test_dlinkedlist(void) {

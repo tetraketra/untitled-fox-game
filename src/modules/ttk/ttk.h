@@ -20,15 +20,15 @@
 */
 
 typedef struct handle_t {
-    void* data; /* pointer to pointer for constant base object addresses */
+    void* data; /* pointer for constant base object addresses */
     size_t size; /* size of data */
     void (*free_fn)(void*); /* function which frees the data */
 } handle_t;
 
-/* Frees a handle's data using its `free_fn` if possible, `free` otherwise. */
-#define FREE_HANDLE_SAFELY_WITH_FALLBACK(handle) do { if (handle.data != NULL) {(handle.free_fn != NULL ? handle.free_fn : free)(handle.data); handle.data = NULL;} } while (0)
 /* Uses the input free function if it exists to free the pointer. Otherwises uses `free` to do the same. Does not free `NULL`. Useful for handles. */
 #define FREE_SAFELY_WITH_FALLBACK(free_fn, ptr) do { if (ptr != NULL) {(free_fn != NULL ? free_fn : free)(ptr); ptr = NULL;} } while (0)
+/* Frees a handle's data using its `free_fn` if possible, `free` otherwise. */
+#define FREE_HANDLE_SAFELY_WITH_FALLBACK(handle) FREE_SAFELY_WITH_FALLBACK(handle.free_fn, handle.data)
 /* Free `ptr`, then set `ptr` to `NULL`. */
 #define FREE(ptr) do { free(ptr); ptr = NULL; } while (0)
 
@@ -56,6 +56,8 @@ typedef struct handle_t {
 #define MAX(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); _a > _b ? _a : _b; })
 /* Returns the min of `a: numeric` and `b: numeric`. */
 #define MIN(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); _a < _b ? _a : _b; })
+
+#define UDISTANCE(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); (_a > b) ? (_a - _bb) : (_b - _a); })
 
 /* Clamp `x: numeric` between `min: numeric` and `max: numeric`. */
 #define CLAMP(x, min, max) ({ typeof(min) _min = (min); typeof(max) _max = (max); typeof(x) _x = (x); _x < _min ? _min : _x > _max ? _max : _x; })

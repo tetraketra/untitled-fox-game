@@ -90,10 +90,10 @@ void hashtable_free(hashtable_t* htable, bool free_values) {
     RUNTIME_ASSERT(htable != NULL);
 
     for (size_t i = 0; i < htable->capacity; i++) {
-        FREE_SAFELY_WITH_FALLBACK(htable->buckets[i].key.free_fn, htable->buckets[i].key.data);
+        FREE_HANDLE_SAFELY_WITH_FALLBACK(htable->buckets[i].key);
 
         if (free_values) {
-            FREE_SAFELY_WITH_FALLBACK(htable->buckets[i].value.free_fn, htable->buckets[i].value.data);
+            FREE_HANDLE_SAFELY_WITH_FALLBACK(htable->buckets[i].value);
         }
     }
 
@@ -131,8 +131,8 @@ void hashtable_insert(hashtable_t* htable, handle_t key, handle_t value, bool fr
 
         if (htable->key_eq(kv->key, key)) { /* same key, insert over, done */
             if (free_old_kv_if_overwritten) {
-                FREE_SAFELY_WITH_FALLBACK(kv->value.free_fn, kv->value.data);
-                FREE_SAFELY_WITH_FALLBACK(kv->key.free_fn, kv->key.data);
+                FREE_HANDLE_SAFELY_WITH_FALLBACK(kv->key);
+                FREE_HANDLE_SAFELY_WITH_FALLBACK(kv->value);
             }
 
             kv->key = key;
@@ -246,14 +246,14 @@ void hashtable_remove(hashtable_t* htable, handle_t key, bool free_value, bool f
 
         if (htable->key_eq(kv->key, key)) { /* same key, free, begin backshift */
             if (free_passed_key_if_removed) {
-                FREE_SAFELY_WITH_FALLBACK(key.free_fn, key.data);
+                FREE_HANDLE_SAFELY_WITH_FALLBACK(key);
             }
 
             if (free_value) {
-                FREE_SAFELY_WITH_FALLBACK(kv->value.free_fn, kv->value.data);
+                FREE_HANDLE_SAFELY_WITH_FALLBACK(kv->value);
             }
 
-            FREE_SAFELY_WITH_FALLBACK(kv->key.free_fn, kv->key.data);
+            FREE_HANDLE_SAFELY_WITH_FALLBACK(kv->key);
 
             *kv = (key_value_pair_t){0};
             htable->count--;
@@ -292,7 +292,7 @@ void hashtable_remove(hashtable_t* htable, handle_t key, bool free_value, bool f
     @param `htable`: The hash table to check.
     @param `key`: The key to check for.
 
-    @returns `true` if the entry exists, `false` otherwise.
+    @returns `true` if the key is associated with a value, `false` otherwise.
 */
 inline bool hashtable_contains(hashtable_t* htable, handle_t key) {
     return hashtable_lookup(htable, key).size != 0;

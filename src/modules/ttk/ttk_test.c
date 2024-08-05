@@ -121,7 +121,7 @@ static void __attribute__((constructor)) test_hashtable(void) {
     RUNTIME_ASSERT(htable->capacity == 3200);
     RUNTIME_ASSERT(htable->count == 2000);
     RUNTIME_ASSERT(htable->max_load == 0.8f);
-    DEBUG("`hashtable_insert` overwriting test passed.\n");
+    DEBUG("`hashtable_contains` test passed.\n");
 
     /* TEST: Free the hash table and all remaining values. */
     hashtable_free(htable, true);

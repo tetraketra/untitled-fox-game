@@ -25,7 +25,7 @@ typedef struct handle_t {
     void (*free_fn)(void*); /* function which frees the data */
 } handle_t;
 
-/* Uses the input free function if it exists to free the pointer. Otherwises uses `free` to do the same. Does not free `NULL`. Useful for handles. */
+/* Uses the input free function if it exists to free the pointer. Otherwises uses `free` to do the same. Does not free `NULL`. */
 #define FREE_SAFELY_WITH_FALLBACK(free_fn, ptr) do { if (ptr != NULL) {(free_fn != NULL ? free_fn : free)(ptr); ptr = NULL;} } while (0)
 /* Frees a handle's data using its `free_fn` if possible, `free` otherwise. */
 #define FREE_HANDLE_SAFELY_WITH_FALLBACK(handle) FREE_SAFELY_WITH_FALLBACK(handle.free_fn, handle.data)

@@ -129,84 +129,47 @@ static void __attribute__((constructor)) test_hashtable(void) {
 }
 #endif
 
-/* === DOUBLY LINKED LIST === */
-#if false && __has_include("ttk/dlinkedlist.h")
-#include "ttk/dlinkedlist.h"
+/* === TIME === */
+#if __has_include("ttk/time.h")
+#include "ttk/time.h"
 
-static void __attribute__((constructor)) test_dlinkedlist(void) {
-    
-    /* TEST: Initialize a doubly linked list. */
-    dlinkedlist_t* dlinkedlist = dlinkedlist_init();
-    
-    /* TEST: Push entries to the head of the doubly linked list. */
-    for (size_t i = 5; i > 0; i--) {
-        int val = i*100;
+static void __attribute__((constructor)) test_time(void) {
 
-        dlinkedlist_push_head(dlinkedlist, &val, sizeof(int));
-    } /* push [500, ..., 100] to head to get list [100, ..., 500]. */
+}
+#endif
 
-    RUNTIME_ASSERT(dlinkedlist->entries_n == 5);
+/* === JSON === */
+#if __has_include("ttk/json.h")
+#include "ttk/json.h"
 
-    /* TEST: Push entries to the tail of the doubly linked list. */
-    for (size_t i = 6; i < 11; i++) {
-        int val = i*100;
+static char* json_str = \
+"{\n\
+    \"languages\": {\n\
+        \"supported\": [\"english\", \"german\", \"chinese (simplified)\"],\n\
+        \"working on\": [\"spanish\"] \n\
+    },\n\
+    \"dialogue\": { \n\
+        \"main_character_move\": {\n\
+            \"english\": \"move forward\",\n\
+            \"german\": \"vorwärts gehen\",\n\
+            \"chinese (simplified)\": \"前进\"\n\
+        },\n\
+        \"main_character_attack\": { \n\
+            \"english\": \"I split at you.\",\n\
+            \"german\": \"Ich habe mich von dir getrennt.\",\n\
+            \"chinese (simplified)\": \"我对你分裂了。\"\n\
+        }\n\
+    },\n\
+    \n\
+    \"testing_int\": -13,\n\
+    \"testing_float\": -19023.123,\n\
+    \"testing_array\": [1, 5.3, \"oh god why would you ever mix types\", true, false, {\"wtf\":\"why\"}, null, [1,2,3]],\n\
+    \"testing_bool\": true,\n\
+    \"testing_other_bool\": false,\n\
+    \"testing_null\": null\n\
+}\n\0";
 
-        dlinkedlist_push_tail(dlinkedlist, &val, sizeof(int));
-    } /* push [600, ..., 1000] to head to get list [100, ..., 1000]. */
-
-    RUNTIME_ASSERT(dlinkedlist->entries_n == 10);
-
-    /* TEST: Verify directly that all values were pushed correctly. */
-    dlinkedlist_entry_t* entry = dlinkedlist->head;
-    for (size_t i = 0; i < 10; i++) {
-        int* val = (int*)entry->data;
-
-        RUNTIME_ASSERT(*val == (int)(i+1)*100);
-
-        entry = entry->next;
-    }
-
-    /* TEST: Get values at specific indices. */
-    for (size_t i = 0; i < 10; i++) {
-        int val1 = (i+1)*100;
-        int* val2 = (int*)dlinkedlist_get(dlinkedlist, i);
-
-        RUNTIME_ASSERT(val1 == *val2);
-    }
-
-    /* TEST: Set values at specific indices. */
-    for (size_t i = 0; i < 10; i++) {
-        int val1 = (i+1)*1000;
-
-        dlinkedlist_set(dlinkedlist, i, &val1, sizeof(int));
-
-        int* val2 = (int*)dlinkedlist_get(dlinkedlist, i);
-
-        RUNTIME_ASSERT(val1 == *val2);
-    } /* List is now [1000, ..., 10000]. */
-
-    /* TEST: Pop values from the head of the doubly linked list. */
-    for (size_t i = 0; i < 3; i++) {
-        int* val = (int*)dlinkedlist_pop_head(dlinkedlist);
-
-        RUNTIME_ASSERT(*val == (int)(i+1)*1000);
-
-        FREE(val);
-    } /* List is now [4000, ..., 10000]. */
-
-    /* TEST: Pop values from the tail of the doubly linked list. */
-    for (size_t i = 10; i > 7; i--) {
-        int* val = (int*)dlinkedlist_pop_tail(dlinkedlist);
-
-        RUNTIME_ASSERT(*val == (int)(i)*1000);
-
-        FREE(val);
-    } /* List is now [4000, ..., 7000]. */
-
-    /* TEST: Verify length has changed from previous two tests. */
-    RUNTIME_ASSERT(dlinkedlist->entries_n == 4);
-
-    /* TEST: Free a doubly linked list. */
-    dlinkedlist_free(dlinkedlist);
+static void __attribute__((constructor)) test_json(void) {
+    IGNORE(json_str);
 }
 #endif

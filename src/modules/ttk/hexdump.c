@@ -1,4 +1,4 @@
-#include "hexdump.h"
+#include "ttk/hexdump.h"
 
 /*
     Dump memory as formatted hex.

@@ -2,16 +2,12 @@
 #define TTK_JSON_H
 
 #include "ttk.h"
+#include "ttk/hashtable.h"
 
 /*
     === INFO ===
     1. JSON read/write as single transactions (entire structure at once).
-    2. Keys ("names") must be <=128 characters.
     3. Only allows a single top-level object.
-    4. This could use hash tables, but:
-        - my hash table library isn't smart enough for this right now.
-        - premature optimization is evil.
-        - you shouldn't be doing JSON lookups *that* frequently.
 */
 
 typedef struct json_span_t {
@@ -32,33 +28,38 @@ typedef struct json_array_t {
 } json_array_t;
 
 typedef union json_value_u {
-    json_object_t object;
-    json_array_t  array;
-    const char*   string;
-    int           integer;
-    double        decimal;
-    bool          boolean;
+    json_object_t object;  /* Exists if TTK_JSON_OBJECT. */
+    json_array_t  array;   /* Exists if TTK_JSON_ARRAY. */
+    const char*   string;  /* Exists if TTK_JSON_STRING, cstring style. */
+    int64_t       integer; /* Exists if TTK_JSON_INTEGER. */
+    double        decimal; /* Exists if TTK_JSON_DECIMAL. */
+    bool          boolean; /* Exists if TTK_JSON_BOOL. */
 } json_value_u;
 
 typedef enum json_value_types_e {
-    TTKJVT_UNDEFINED,
-    TTKJVT_OBJECT,
-    TTKJVT_ARRAY,
-    TTKJVT_STRING,
-    TTKJVT_INTEGER,
-    TTKJVT_DECIMAL,
-    TTKJVT_BOOL,
-    TTKJVT_NULL,
+    TTK_JSON_OBJECT,  /* For a {}-bracketed object. */
+    TTK_JSON_ARRAY,   /* For a []-bracketed array. May include any of these types. */
+    TTK_JSON_STRING,  /* For a ""-wrapped string. Converted to a cstring during parsing. */
+    TTK_JSON_INTEGER, /* For whole number as `int64_t`. */
+    TTK_JSON_DECIMAL, /* For decimal number as `double`. */
+    TTK_JSON_BOOL,    /* For Yes/No/True/False (any capitalization) as `bool`. */
+    TTK_JSON_NULL,    /* For null as (json_value_u){0}. */
 } json_value_types_e;
 
 typedef struct json_value_t {
-    json_value_u*      data;
-    json_value_types_e data_tag;
-    json_span_t        _span;
+    json_value_u*      data; /* Value. */
+    json_value_types_e tag; /* Type of value, see `json_value_types_e`. */
+    json_span_t        _span; /* Location and width in the original JSON string. */
 } json_value_t;
 
+typedef struct json_key_t {
+    const char*     data; /* Key. */
+    size_t          len; /* Length of key. */
+    json_span_t     _span; /* Location and width in the original JSON string. */
+} json_key_t;
+
 typedef struct json_entry_t {
-    const char          name[128];
+    json_key_t          name;
     json_value_t*       value;
 } json_entry_t;
 

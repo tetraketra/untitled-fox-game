@@ -1,4 +1,4 @@
-#include "json.h"
+#include "ttk/json.h"
 
 /*
     Converts json text into a new json object on the heap.
@@ -10,14 +10,15 @@
     @returns Pointer to a new `json_object_t`.
 
 */
-// json_object_t* json_read(const char* json) {
-//     FIXME;
-//     IGNORE(json);
+json_object_t* json_read(const char* json) {
+    IGNORE(json);
 
-//     /* 
-//         Read calls `json_parse_value`, which digests any value.
-//         Since there's a single top-level value (typically object), 
-//          this gives you the full nested (pointed) structure.
-//         The private `_span` member will be useful for this.
-//     */
-// }
+    /* 
+        Read calls `json_parse_value`, which digests any value.
+        Since there's a single top-level value (typically object), 
+         this gives you the full nested (pointed) structure.
+        The private `_span` member will be useful for this.
+    */
+
+   return &(json_object_t){0}; /* FIXME */
+}

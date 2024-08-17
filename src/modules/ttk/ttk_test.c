@@ -148,42 +148,6 @@ static void __attribute__((constructor)) test_time(void) {
 }
 #endif
 
-/* === JSON === */
-#if __has_include("ttk/json.h")
-#include "ttk/json.h"
-
-static char* json_str = \
-"{\n\
-    \"languages\": {\n\
-        \"supported\": [\"english\", \"german\", \"chinese (simplified)\"],\n\
-        \"working on\": [\"spanish\"] \n\
-    },\n\
-    \"dialogue\": { \n\
-        \"main_character_move\": {\n\
-            \"english\": \"move forward\",\n\
-            \"german\": \"vorwärts gehen\",\n\
-            \"chinese (simplified)\": \"前进\"\n\
-        },\n\
-        \"main_character_attack\": { \n\
-            \"english\": \"I split at you.\",\n\
-            \"german\": \"Ich habe mich von dir getrennt.\",\n\
-            \"chinese (simplified)\": \"我对你分裂了。\"\n\
-        }\n\
-    },\n\
-    \n\
-    \"testing_int\": -13,\n\
-    \"testing_float\": -19023.123,\n\
-    \"testing_array\": [1, 5.3, \"oh god why would you ever mix types\", true, false, {\"wtf\":\"why\"}, null, [1,2,3]],\n\
-    \"testing_bool\": true,\n\
-    \"testing_other_bool\": false,\n\
-    \"testing_null\": null\n\
-}\n\0";
-
-static void __attribute__((constructor)) test_json(void) {
-    IGNORE(json_str);
-}
-#endif
-
 /* === DOUBLY LINKED LIST === */
 #if __has_include("ttk/dlinkedlist.h")
 #include "ttk/dlinkedlist.h"
@@ -287,5 +251,41 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
     /* TEST: Free a doubly linked list. */
     dlinkedlist_free(dlinkedlist, true);
     DEBUG("`dlinkedlist_free` test passed.\n");
+}
+#endif
+
+/* === JSON === */
+#if __has_include("ttk/json.h")
+#include "ttk/json.h"
+
+static char* json_str = \
+"{\n\
+    \"languages\": {\n\
+        \"supported\": [\"english\", \"german\", \"chinese (simplified)\"],\n\
+        \"working on\": [\"spanish\"] \n\
+    },\n\
+    \"dialogue\": { \n\
+        \"main_character_move\": {\n\
+            \"english\": \"move forward\",\n\
+            \"german\": \"vorwärts gehen\",\n\
+            \"chinese (simplified)\": \"前进\"\n\
+        },\n\
+        \"main_character_attack\": { \n\
+            \"english\": \"I split at you.\",\n\
+            \"german\": \"Ich habe mich von dir getrennt.\",\n\
+            \"chinese (simplified)\": \"我对你分裂了。\"\n\
+        }\n\
+    },\n\
+    \n\
+    \"testing_int\": -13,\n\
+    \"testing_float\": -19023.123,\n\
+    \"testing_array\": [1, 5.3, \"oh god why would you ever mix types\", true, false, {\"wtf\":\"why\"}, null, [1,2,3]],\n\
+    \"testing_bool\": true,\n\
+    \"testing_other_bool\": false,\n\
+    \"testing_null\": null\n\
+}\n\0";
+
+static void __attribute__((constructor)) test_json(void) {
+    IGNORE(json_str);
 }
 #endif

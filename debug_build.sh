@@ -8,8 +8,8 @@ sudo sysctl vm.mmap_rnd_compat_bits=8 > /dev/null 2>&1
 FILES=$(find . -print | grep -i "\.c" | tr -s '\n' ' ')
 WARNS="-W -Wall -Wextra -Wno-multichar -Wno-comment -Wno-misleading-indentation -Wno-uninitialized"
 FSANS="-fsanitize=address -fsanitize=undefined -fsanitize-address-use-after-scope"
-LINKS="-lGL -lglfw -lm -lrt -lc"
-DEBUG="-Og -g3 -D _DEBUG"
+LINKS="-lGL -lglfw -lm -lc"
+FLAGS="-Og -g3 -D BUILDFLAG_DEBUG -D BUILDFLAG_LINUX" # BUILDFLAG_WINDOWS, BUILDFLAG_MAC
 INCLD="-iquote ./src/modules"
 
 echo "\n\nExecuting with..."
@@ -18,7 +18,7 @@ echo "FILES: $FILES"
 echo "WARNS: $WARNS"
 echo "FSANS: $FSAN"
 echo "LINKS: $LINKS"
-echo "DEBUG: $DEBUG"
+echo "FLAGS: $FLAGS"
 echo "INCLD: $INCLD"
 
 # Line counts.
@@ -40,7 +40,7 @@ echo "\nBuilding and reporting build time(s)..."
 BUILD_START=$(date +%s.%N)
 mkdir -p ./bin
 gcc-12 $FILES -o ./bin/untitledfoxgame \
-    $WARNS $LINKS $DEBUG $FSANS $INCLD \
+    $WARNS $LINKS $FLAGS $FSANS $INCLD \
     -ftime-report \
     > time.txt 2>&1
 BUILD_END=$(date +%s.%N)

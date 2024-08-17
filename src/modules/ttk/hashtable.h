@@ -2,6 +2,7 @@
 #define TTK_HASHTABLE_H
 
 #include "ttk.h"
+#include "ttk/handle.h"
 
 /*
     === INFO ===

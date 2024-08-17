@@ -1,17 +1,17 @@
 #ifndef TTK_H
 #define TTK_H
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <libgen.h>
-#include <stdlib.h>
-#include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
-#include <locale.h>
 #include <ctype.h>
-#include <time.h>
+#include <inttypes.h>
+
+#include "ttk/time.h"
 
 /*
     === INFO ===
@@ -19,18 +19,10 @@
     2. This file contains macros for use in all ttk sublibraries, plus wherever else you want.
 */
 
-typedef struct handle_t {
-    void* data; /* pointer for constant base object addresses */
-    size_t size; /* size of data */
-    void (*free_fn)(void*); /* function which frees the data */
-} handle_t;
-
-/* Uses the input free function if it exists to free the pointer. Otherwises uses `free` to do the same. Does not free `NULL`. */
-#define FREE_SAFELY_WITH_FALLBACK(free_fn, ptr) do { if (ptr != NULL) {(free_fn != NULL ? free_fn : free)(ptr); ptr = NULL;} } while (0)
-/* Frees a handle's data using its `free_fn` if possible, `free` otherwise. */
-#define FREE_HANDLE_SAFELY_WITH_FALLBACK(handle) FREE_SAFELY_WITH_FALLBACK(handle.free_fn, handle.data)
 /* Free `ptr`, then set `ptr` to `NULL`. */
 #define FREE(ptr) do { free(ptr); ptr = NULL; } while (0)
+/* Uses the input free function if it exists to free the pointer. Otherwises uses `free` to do the same. Does not free `NULL`. */
+#define FREE_SAFELY_WITH_FALLBACK(free_fn, ptr) do { if (ptr != NULL) {(free_fn != NULL ? free_fn : free)(ptr); ptr = NULL;} } while (0)
 
 /* Suppress unused variable warnings. */
 #define IGNORE(x) ((void)(x))
@@ -67,22 +59,27 @@ typedef struct handle_t {
 /* Add `add: numeric` to `value: numeric`, clamped to `max`: numeric. */
 #define ADD_CLAMP(x, add, max) MIN(x + add, max)
 
-/* Print location information to stderr as debug. */
-#define WHERE fprintf(stderr, "[DBG][%s:%d:%s]\n", basename(__FILE__), __LINE__, __FUNCTION__)
-/* Print `msg: string` to stderr as log. */
-#define LOG(fmt, args...) fprintf(stderr, "[LOG][%s:%d:%s]: " fmt, basename(__FILE__), __LINE__, __FUNCTION__, ##args)
+
+    // char buffer[256];
+    // timestamp_strftime(buffer, 256, "%Y-%m-%dT%H:%M:%S", timestamp);
+    // DEBUG("`timestamp_strftime` test returns \"%s\" for the previous `timestamp_get` call.\n", buffer);
+
+/* Print `msg: string` to stderr as info. */
+#define INFO(fmt, args...)  do { char buffer[20]; timestamp_t ts = timestamp_get(false); timestamp_strftime(buffer, 20, "%Y-%m-%dT%H:%M:%S", ts); fprintf(stderr, "[INF][%s][%s:%d:%s]: " fmt, buffer, basename(__FILE__), __LINE__, __FUNCTION__, ##args); } while(0)
 /* Print `msg: string` to stderr as debug. */
-#define DEBUG(fmt, args...) fprintf(stderr, "[DBG][%s:%d:%s]: " fmt, basename(__FILE__), __LINE__, __FUNCTION__, ##args)
+#define DEBUG(fmt, args...) do { char buffer[20]; timestamp_t ts = timestamp_get(false); timestamp_strftime(buffer, 20, "%Y-%m-%dT%H:%M:%S", ts); fprintf(stderr, "[DBG][%s][%s:%d:%s]: " fmt, buffer, basename(__FILE__), __LINE__, __FUNCTION__, ##args); } while(0)
 /* Print `msg: string` to stderr as error. Does not exit, unlike `RUNTIME_ASSERT()`. */
-#define ERROR(fmt, args...) fprintf(stderr, "[ERR][%s:%d:%s]: " fmt, basename(__FILE__), __LINE__, __FUNCTION__, ##args)
+#define ERROR(fmt, args...) do { char buffer[20]; timestamp_t ts = timestamp_get(false); timestamp_strftime(buffer, 20, "%Y-%m-%dT%H:%M:%S", ts); fprintf(stderr, "[ERR][%s][%s:%d:%s]: " fmt, buffer, basename(__FILE__), __LINE__, __FUNCTION__, ##args); } while(0)
+/* Print `msg: string` to stderr as fatal. Does not exit, unlike `RUNTIME_ASSERT()`. */
+#define FATAL(fmt, args...) do { char buffer[20]; timestamp_t ts = timestamp_get(false); timestamp_strftime(buffer, 20, "%Y-%m-%dT%H:%M:%S", ts); fprintf(stderr, "[FTL][%s][%s:%d:%s]: " fmt, buffer, basename(__FILE__), __LINE__, __FUNCTION__, ##args); } while(0)
 
 /* Assert that `cond: bool_expression` is true at compile time. */
 #define COMPILE_ASSERT(cond) static_assert(cond)
-#ifdef _DEBUG
-    /* Assert that `cond: bool_expression` is true at runtime. Does nothing if not in debug mode (`-D _DEBUG`). */
+#ifdef BUILDFLAG_DEBUG
+    /* Assert that `cond: bool_expression` is true at runtime. Does nothing if not in debug mode (`-D BUILDFLAG_DEBUG`). */
     #define RUNTIME_ASSERT(cond) do { if (!(cond)) { fprintf(stderr, "[ERR][%s:%d:%s] Assertion \"%s\" failed.\n", basename(__FILE__), __LINE__, __FUNCTION__, #cond); exit(-1); } } while(0)
 #else
-    /* Assert that `cond: bool_expression` is true at runtime. Does nothing if not in debug mode (`-D _DEBUG`). */
+    /* Assert that `cond: bool_expression` is true at runtime. Does nothing if not in debug mode (`-D BUILDFLAG_DEBUG`). */
     #define RUNTIME_ASSERT(cond) IGNORE(cond);
 #endif
 

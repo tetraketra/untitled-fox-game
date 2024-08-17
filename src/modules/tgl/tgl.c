@@ -11,7 +11,7 @@ void tgl_init(void) {
 
     /* Initialize GLFW. */
     if (glfwInit() == GLFW_FALSE) {
-        ERROR("Failed to initialize GLFW!");
+        FATAL("Failed to initialize GLFW!");
         exit(EXIT_FAILURE);
     }
 
@@ -27,7 +27,7 @@ void tgl_init(void) {
     );
 
     if (tgls.window.gflw_window == NULL){
-        ERROR("Failed to create GLFW window!");
+        FATAL("Failed to create GLFW window!");
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -36,7 +36,7 @@ void tgl_init(void) {
 
     /* Initialize GLAD. */
     if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) == 0){
-        ERROR("Failed to initialize GLAD and link to GLFW!");
+        FATAL("Failed to initialize GLAD and link to GLFW!");
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -44,7 +44,7 @@ void tgl_init(void) {
     /* Initialize monitor. */
     tgls.window.glfw_monitor = glfwGetPrimaryMonitor();
     if (tgls.window.glfw_monitor == NULL) {
-        ERROR("Failed to get primary monitor!");
+        FATAL("Failed to get primary monitor!");
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -52,7 +52,7 @@ void tgl_init(void) {
     /* Initialize monitor's viewmode. */
     tgls.window.gflw_vidmode = glfwGetVideoMode(tgls.window.glfw_monitor);
     if (tgls.window.gflw_vidmode == NULL) {
-        ERROR("Failed to get primary monitor video mode!");
+        FATAL("Failed to get primary monitor video mode!");
         glfwTerminate();
         exit(EXIT_FAILURE);
     }

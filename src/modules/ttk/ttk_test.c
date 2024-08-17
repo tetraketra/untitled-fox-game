@@ -183,3 +183,109 @@ static void __attribute__((constructor)) test_json(void) {
     IGNORE(json_str);
 }
 #endif
+
+/* === DOUBLY LINKED LIST === */
+#if __has_include("ttk/dlinkedlist.h")
+#include "ttk/dlinkedlist.h"
+
+static void __attribute__((constructor)) test_dlinkedlist(void) {
+    
+    /* TEST: Initialize a doubly linked list. */
+    dlinkedlist_t* dlinkedlist = dlinkedlist_init();
+    DEBUG("`dlinkedlist_init` test passed.\n");
+    
+    /* TEST: Push entries to the head of the doubly linked list. */
+    for (size_t i = 5; i > 0; i--) {
+        int* val = malloc(sizeof(int));
+        *val = i*100;
+        handle_t handle = {.data = val, .size = sizeof(int)};
+
+        dlinkedlist_push_head(dlinkedlist, handle);
+    } /* push [500, ..., 100] to head to get list [100, ..., 500]. */
+
+    RUNTIME_ASSERT(dlinkedlist->entries_n == 5);
+    DEBUG("`dlinkedlist_push_head` test passed.\n");
+
+    /* TEST: Push entries to the tail of the doubly linked list. */
+    for (size_t i = 6; i < 11; i++) {
+        int* val = malloc(sizeof(int));
+        *val = i*100;
+        handle_t handle = {.data = val, .size = sizeof(int)};
+
+        dlinkedlist_push_tail(dlinkedlist, handle);
+    } /* push [600, ..., 1000] to head to get list [100, ..., 1000]. */
+
+    RUNTIME_ASSERT(dlinkedlist->entries_n == 10);
+    DEBUG("`dlinkedlist_push_tail` test passed.\n");
+
+    /* TEST: Verify directly that all values were pushed correctly. */
+    dlinkedlist_entry_t* entry = dlinkedlist->head;
+    for (size_t i = 0; i < 10; i++) {
+        int* val = (int*)entry->value.data;
+
+        RUNTIME_ASSERT(*val == (int)(i+1)*100);
+
+        if (entry->next) {
+            entry = entry->next;
+        }
+    }
+
+    DEBUG("`dlinkedlist_push_[...]` tests passed.\n");
+
+    /* TEST: Get values at specific indices. */
+    for (size_t i = 0; i < 10; i++) {
+        int val1 = (i+1)*100;
+        int* val2 = (int*)dlinkedlist_get(dlinkedlist, i).data;
+
+        RUNTIME_ASSERT(val1 == *val2);
+    }
+
+    DEBUG("`dlinkedlist_get` test passed.\n");
+
+    /* TEST: Set values at specific indices. */
+    for (size_t i = 0; i < 10; i++) {
+        int* val1 = malloc(sizeof(int));
+        *val1 = (i+1)*1000;
+        handle_t handle = {.data = val1, .size = sizeof(int)};
+
+        dlinkedlist_set(dlinkedlist, i, handle, true);
+
+        int* val2 = (int*)dlinkedlist_get(dlinkedlist, i).data;
+
+        RUNTIME_ASSERT(*val1 == *val2);
+        
+    } /* List is now [1000, ..., 10000]. */
+
+    DEBUG("`dlinkedlist_set` test passed.\n");
+
+    /* TEST: Pop values from the head of the doubly linked list. */
+    for (size_t i = 0; i < 3; i++) {
+        int* val = (int*)dlinkedlist_pop_head(dlinkedlist).data;
+
+        RUNTIME_ASSERT(*val == (int)(i+1)*1000);
+
+        FREE(val);
+    } /* List is now [4000, ..., 10000]. */
+
+    DEBUG("`dlinkedlist_pop_head` test passed.\n");
+
+    /* TEST: Pop values from the tail of the doubly linked list. */
+    for (size_t i = 10; i > 7; i--) {
+        int* val = (int*)dlinkedlist_pop_tail(dlinkedlist).data;
+
+        RUNTIME_ASSERT(*val == (int)(i)*1000);
+
+        FREE(val);
+    } /* List is now [4000, ..., 7000]. */
+
+    DEBUG("`dlinkedlist_pop_tail` test passed.\n");
+
+    /* TEST: Verify length has changed from previous two tests. */
+    RUNTIME_ASSERT(dlinkedlist->entries_n == 4);
+    DEBUG("`dlinkedlist_pop_[...]` tests passed.\n");
+
+    /* TEST: Free a doubly linked list. */
+    dlinkedlist_free(dlinkedlist, true);
+    DEBUG("`dlinkedlist_free` test passed.\n");
+}
+#endif

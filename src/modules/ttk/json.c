@@ -10,7 +10,8 @@
     @returns Pointer to a new `json_object_t`.
 
 */
-json_object_t* json_read(const char* json) {
+json_object_t* json_read(const char* json_str, size_t len) {
+
     IGNORE(json);
 
     /* 

@@ -63,6 +63,6 @@ typedef struct json_entry_t {
     json_value_t*       value;
 } json_entry_t;
 
-extern json_object_t* json_read(const char* json);
+extern json_object_t* json_read(const char* json_str, size_t len);
 
 #endif

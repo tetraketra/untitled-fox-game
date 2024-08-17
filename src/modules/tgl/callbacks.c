@@ -45,6 +45,7 @@ void tgl_callback_window_pos(GLFWwindow* window, int x, int y) {
 
     @note Intended for use in `glfwSet...Callback` and *nowhere else*.
 */
+
 void tgl_callback_key(GLFWwindow* window, int key, int scancode, int action, int mods) {
     IGNORE(window);
     IGNORE(scancode);
@@ -55,11 +56,11 @@ void tgl_callback_key(GLFWwindow* window, int key, int scancode, int action, int
             switch (action) { \
                 case GLFW_PRESS: \
                     TGLS_KEY_VAR(glfw_key).is_down = true; \
-                    clock_gettime(CLOCK_MONOTONIC, &TGLS_KEY_VAR(glfw_key).last_key_down); \
+                    TGLS_KEY_VAR(glfw_key).last_down = timestamp_get(true); \
                     break; \
                 case GLFW_RELEASE: \
                     TGLS_KEY_VAR(glfw_key).is_down = false; \
-                    clock_gettime(CLOCK_MONOTONIC, &TGLS_KEY_VAR(glfw_key).last_key_up); \
+                    TGLS_KEY_VAR(glfw_key).last_up = timestamp_get(true); \
                     break; \
             } \
             break;

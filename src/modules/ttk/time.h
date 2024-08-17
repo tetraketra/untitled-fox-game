@@ -19,8 +19,8 @@ typedef struct timestamp_t {
 /* Number of nanoseconds in a second. Useful for conversions. */
 #define NSEC_PER_SEC 1000000000
 
-/* Difference between two `timestamp_t`s as a `timestamp_t`. */
-#define TIMEDELTA(timestamp1, timestamp2) 
+/* Format specifier for printing timestamps (e.g. `printf("Hello %" TIMESTAMP_FMT " there.", ts.sec, ts.nsec)`. */
+#define TIMESTAMP_FMT PRId64 ".%09" PRId64
 
 extern timestamp_t  timestamp_get(bool monotonic);
 extern timestamp_t  timestamp_dif(timestamp_t timestamp1, timestamp_t timestamp2);

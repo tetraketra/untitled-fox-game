@@ -1,11 +1,12 @@
 #ifndef TGH_H
 #define TGH_H
 
-#include "ttk/ttk.h"
 #include <glad/glad.h> /* This order is required! (1) glad, (2) glfw */
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
-#include <time.h>
+
+#include "ttk/ttk.h"
+#include "ttk/time.h"
 
 /*
     === INFO ===

@@ -43,11 +43,11 @@ typedef struct tgls_flags_t {
 /* ---------------------------------------------------- */
 typedef struct timespec timespec_t;
 typedef struct tgls_key_t {
-    int _glfw_key;
+    timestamp_t last_down; /* Time of last key down event as monotonic. */
+    timestamp_t last_up; /* Time of last key up event as monotonic. */
+    bool is_down; /* Whether the key is currently held. */
 
-    timespec_t last_key_down;
-    timespec_t last_key_up;
-    bool is_down;
+    int _glfw_key; /* The internal glfw keycode associated with this tgls key struct. */
 } tgls_key_t;
 
 #define X_ALL_GLFW_KEYS \

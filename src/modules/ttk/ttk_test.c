@@ -135,7 +135,7 @@ static void __attribute__((constructor)) test_hashtable(void) {
 
 static void __attribute__((constructor)) test_time(void) {
     timestamp_t timestamp = timestamp_get(false);
-    DEBUG("`timestamp_get` test returns %" PRId64 ".%09" PRId64 " since epoch.\n", timestamp.sec, timestamp.nsec);
+    DEBUG("`timestamp_get` test returns %" TIMESTAMP_FMT " since epoch.\n", timestamp.sec, timestamp.nsec);
 
     char buffer[256];
     timestamp_strftime(buffer, 256, "%Y-%m-%dT%H:%M:%S", timestamp);
@@ -144,7 +144,7 @@ static void __attribute__((constructor)) test_time(void) {
     timestamp_t tsmono1 = timestamp_get(true);
     timestamp_t tsmono2 = timestamp_get(true);
     timestamp_t timedelta = timestamp_dif(tsmono1, tsmono2);
-    DEBUG("`timestamp_dif` test returns %" PRId64 ".%09" PRId64 " between calls.\n", timedelta.sec, timedelta.nsec);
+    DEBUG("`timestamp_dif` test returns %" TIMESTAMP_FMT " between calls.\n", timedelta.sec, timedelta.nsec);
 }
 #endif
 

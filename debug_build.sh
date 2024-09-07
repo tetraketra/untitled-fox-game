@@ -7,8 +7,8 @@ sudo sysctl vm.mmap_rnd_compat_bits=8 > /dev/null 2>&1
 # GCC args.
 FILES=$(find . -print | grep -i "\.c" | tr -s '\n' ' ')
 WARNS="-W -Wall -Wextra -Wno-multichar -Wno-comment -Wno-misleading-indentation -Wno-uninitialized"
-FSANS="-fsanitize=address -fsanitize=undefined -fsanitize-address-use-after-scope"
-LINKS="-lGL -lm -lc -lSDL"
+FSANS="-fsanitize=address -fsanitize=undefined -fsanitize-address-use-after-scope" # FOR RELEASE, CLEAR THIS AND REMOVE THE DLCLOSE EXPORT
+LINKS="-lGL -lm -lc -lSDL3"
 FLAGS="-Og -g3 -D BUILDFLAG_DEBUG -D BUILDFLAG_LINUX" # BUILDFLAG_WINDOWS, BUILDFLAG_MAC
 INCLD="-iquote ./src/modules"
 

@@ -35,7 +35,7 @@ int main(void) {
     }
 
     /* Events loop. */
-    SDL_Event event;
+    SDL_Event event = {0};
     bool quit = false;
     while (SDL_WaitEvent(&event) && !quit) {
         switch (event.type) {
@@ -44,6 +44,7 @@ int main(void) {
             case SDL_EVENT_QUIT: 
                 INFO("User quit the app via SDL_EVENT_QUIT.\n");
                 quit = true;
+                break;
 
             /* Keyboard input. */
             case SDL_EVENT_KEY_DOWN: /* =768 */

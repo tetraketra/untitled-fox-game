@@ -1,7 +1,7 @@
 #ifndef TTK_HANDLE_T
 #define TTK_HANDLE_T
 
-#include <stdlib.h>
+#include "toolkit.h"
 
 typedef struct handle_t {
     void* data; /* pointer for constant base object addresses */

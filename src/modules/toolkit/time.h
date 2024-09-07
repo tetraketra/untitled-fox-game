@@ -1,7 +1,7 @@
 #ifndef TTK_TIME_H
 #define TTK_TIME_H
 
-#include "ttk.h"
+#include "toolkit.h"
 
 /*
     === INFO ===

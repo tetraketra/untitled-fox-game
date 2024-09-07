@@ -1,8 +1,8 @@
 #ifndef TTK_JSON_H
 #define TTK_JSON_H
 
-#include "ttk.h"
-#include "ttk/hashtable.h"
+#include "toolkit.h"
+#include "toolkit/hashtable.h"
 
 /*
     === INFO ===

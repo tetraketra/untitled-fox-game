@@ -1,7 +1,7 @@
 /* === HASH TABLE === */
-#if __has_include("ttk/hashtable.h")
-#include "ttk/hashtable.h"
-#include "ttk/hexdump.h"
+#if __has_include("toolkit/hashtable.h")
+#include "toolkit/hashtable.h"
+#include "toolkit/hexdump.h"
 
 static void __attribute__((constructor)) test_hashtable(void) {
 
@@ -130,8 +130,8 @@ static void __attribute__((constructor)) test_hashtable(void) {
 #endif
 
 /* === TIME === */
-#if __has_include("ttk/time.h")
-#include "ttk/time.h"
+#if __has_include("toolkit/time.h")
+#include "toolkit/time.h"
 
 static void __attribute__((constructor)) test_time(void) {
     timestamp_t timestamp = timestamp_get(false);
@@ -149,8 +149,8 @@ static void __attribute__((constructor)) test_time(void) {
 #endif
 
 /* === DOUBLY LINKED LIST === */
-#if __has_include("ttk/dlinkedlist.h")
-#include "ttk/dlinkedlist.h"
+#if __has_include("toolkit/dlinkedlist.h")
+#include "toolkit/dlinkedlist.h"
 
 static void __attribute__((constructor)) test_dlinkedlist(void) {
     
@@ -255,8 +255,8 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
 #endif
 
 /* === JSON === */
-#if __has_include("ttk/json.h")
-#include "ttk/json.h"
+#if __has_include("toolkit/json.h")
+#include "toolkit/json.h"
 
 static char* json_str = \
 "{\n\

@@ -1,9 +1,7 @@
-#include "ttk/ttk.h"
-#include "tgl/tgl.h"
+#include "toolkit/toolkit.h"
+
+#include <SDL3/SDL.h>
 
 int main(void) {
-    tgl_init();
-    tgl_run_minimal();
-
     return 0;
 }

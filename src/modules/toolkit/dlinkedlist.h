@@ -1,7 +1,7 @@
 #ifndef TTK_DLINKEDLIST_H
 #define TTK_DLINKEDLIST_H
 
-#include "ttk.h"
+#include "toolkit.h"
 #include "handle.h"
 
 /*

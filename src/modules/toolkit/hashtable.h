@@ -1,8 +1,8 @@
 #ifndef TTK_HASHTABLE_H
 #define TTK_HASHTABLE_H
 
-#include "ttk.h"
-#include "ttk/handle.h"
+#include "toolkit.h"
+#include "toolkit/handle.h"
 
 /*
     === INFO ===

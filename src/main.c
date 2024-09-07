@@ -59,7 +59,7 @@ int main(void) {
                             : ( KEY_VAR(sdl_scancode).last_up   = timestamp_get(true) ); \
                         break;
 
-                    X_ALL_SDL_KEYCODES
+                    X_ALL_SDL_SCANCODES
 
                     #undef X
                     #undef KEY_VAR

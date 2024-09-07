@@ -5,7 +5,7 @@
 
 /* HINT: There's stuff waaaaaay down there. ↓ */
 
-#define X_ALL_SDL_KEYCODES \
+#define X_ALL_SDL_SCANCODES \
     X(SDL_SCANCODE_UNKNOWN) \
     X(SDL_SCANCODE_A) \
     X(SDL_SCANCODE_B) \
@@ -268,6 +268,6 @@ typedef struct SDLEXT_Key {
 typedef struct SDLEXT_Keys {
     #define SDL_SCANCODE_TO_SDLEXT_KEY(sdl_scancode) key_##sdl_scancode
     #define X(key) SDLEXT_Key SDL_SCANCODE_TO_SDLEXT_KEY(key);
-        X_ALL_SDL_KEYCODES
+        X_ALL_SDL_SCANCODES
     #undef X
 } SDLEXT_Keys;

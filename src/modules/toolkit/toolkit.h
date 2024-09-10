@@ -20,7 +20,7 @@
 */
 
 /* Free `ptr`, then set `ptr` to `NULL`. */
-#define FREE(ptr) do { free(ptr); ptr = NULL; } while (0)
+#define FREE(ptr) do { if (ptr != NULL) {free(ptr); ptr = NULL;} } while (0)
 /* Uses the input free function if it exists to free the pointer. Otherwises uses `free` to do the same. Does not free `NULL`. */
 #define FREE_SAFELY_WITH_FALLBACK(free_fn, ptr) do { if (ptr != NULL) {(free_fn != NULL ? free_fn : free)(ptr); ptr = NULL;} } while (0)
 

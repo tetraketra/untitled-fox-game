@@ -125,7 +125,7 @@ static void __attribute__((constructor)) test_hashtable(void) {
 
     /* TEST: Free the hash table and all remaining values. */
     hashtable_free(htable, true);
-    DEBUG("`hashtable_free` test passed.\n");
+    DEBUG("`hashtable_free` test passed if you see no leaks.\n");
 }
 #endif
 
@@ -134,16 +134,23 @@ static void __attribute__((constructor)) test_hashtable(void) {
 #include "toolkit/time.h"
 
 static void __attribute__((constructor)) test_time(void) {
+
+    /* TEST: Get a timestamp. */
     timestamp_t timestamp = timestamp_get(false);
+    
     DEBUG("`timestamp_get` test returns %" TIMESTAMP_FMT " since epoch.\n", timestamp.sec, timestamp.nsec);
 
+    /* TEST: Format a timestamp. */
     char buffer[256];
     timestamp_strftime(buffer, 256, "%Y-%m-%dT%H:%M:%S", timestamp);
+    
     DEBUG("`timestamp_strftime` test returns \"%s\" for the previous `timestamp_get` call.\n", buffer);
 
+    /* TEST: Calculate a timestamp difference. */
     timestamp_t tsmono1 = timestamp_get(true);
     timestamp_t tsmono2 = timestamp_get(true);
     timestamp_t timedelta = timestamp_dif(tsmono1, tsmono2);
+    
     DEBUG("`timestamp_dif` test returns %" TIMESTAMP_FMT " between calls.\n", timedelta.sec, timedelta.nsec);
 }
 #endif
@@ -246,46 +253,69 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
 
     /* TEST: Verify length has changed from previous two tests. */
     RUNTIME_ASSERT(dlinkedlist->entries_n == 4);
+    
     DEBUG("`dlinkedlist_pop_[...]` tests passed.\n");
 
     /* TEST: Free a doubly linked list. */
     dlinkedlist_free(dlinkedlist, true);
-    DEBUG("`dlinkedlist_free` test passed.\n");
+    
+    DEBUG("`dlinkedlist_free` test passed if you see no leaks.\n");
 }
 #endif
 
-/* === JSON === */
-#if __has_include("toolkit/json.h")
-#include "toolkit/json.h"
+/* === TRANSTEXT === */
+#if __has_include("toolkit/transtext.h")
+#include "toolkit/transtext.h"
 
-static char* json_str = \
-"{\n\
-    \"languages\": {\n\
-        \"supported\": [\"english\", \"german\", \"chinese (simplified)\"],\n\
-        \"working on\": [\"spanish\"] \n\
-    },\n\
-    \"dialogue\": { \n\
-        \"main_character_move\": {\n\
-            \"english\": \"move forward\",\n\
-            \"german\": \"vorwärts gehen\",\n\
-            \"chinese (simplified)\": \"前进\"\n\
-        },\n\
-        \"main_character_attack\": { \n\
-            \"english\": \"I split at you.\",\n\
-            \"german\": \"Ich habe mich von dir getrennt.\",\n\
-            \"chinese (simplified)\": \"我对你分裂了。\"\n\
-        }\n\
-    },\n\
-    \n\
-    \"testing_int\": -13,\n\
-    \"testing_float\": -19023.123,\n\
-    \"testing_array\": [1, 5.3, \"oh god why would you ever mix types\", true, false, {\"wtf\":\"why\"}, null, [1,2,3]],\n\
-    \"testing_bool\": true,\n\
-    \"testing_other_bool\": false,\n\
-    \"testing_null\": null\n\
-}\n\0";
+static void __attribute__((constructor)) test_transtext(void) {
+    /* TEST: Add reference languages. */
+    transtext_reflangs_add("english");
+    transtext_reflangs_add("spanish");
 
-static void __attribute__((constructor)) test_json(void) {
-    IGNORE(json_str);
+    DEBUG("`transtext_reflangs_add` test passed.\n");
+
+    /* TEST: Initialize transtexts. */
+    transtext_t* tt_1 = transtext_init();
+    transtext_t* tt_2 = transtext_init();
+
+    for (size_t i; i < TTK_TRANSTEXT_LANG_MAXCNT; i++) {
+        RUNTIME_ASSERT(tt_2->_translations[i] == NULL);
+    }
+
+    DEBUG("`transtext_init` test passed.\n");
+
+    /* TEST: Add some translations to the transtexts. */
+    transtext_translation_add(tt_1, "english", "unicode english 😈");
+    transtext_translation_add(tt_1, "spanish", "unicode español 😈");
+    transtext_translation_add(tt_1, "notalang", "asdfasdfasdf");
+    RUNTIME_ASSERT(strcmp(tt_1->_translations[0], "unicode english 😈") == 0);
+    RUNTIME_ASSERT(strcmp(tt_1->_translations[1], "unicode español 😈") == 0);
+
+    DEBUG("`transtext_translation_add` test passed.\n");
+
+    /* TEST: Select a language. */
+    transtext_reflang_select("spanish");
+
+    DEBUG("`transtext_reflang_select` test passed.\n");
+
+    /* TEST: Get the current translation. */
+    RUNTIME_ASSERT(strcmp(transtext_translation_get(tt_1), "unicode español 😈") == 0);
+    transtext_reflang_select("english");
+    RUNTIME_ASSERT(strcmp(transtext_translation_get(tt_1), "unicode english 😈") == 0);
+    transtext_reflang_select("asdfasdfasdf");
+    RUNTIME_ASSERT(strcmp(transtext_translation_get(tt_1), "unicode english 😈") == 0);
+
+    DEBUG("`transtext_translation_get` test passed.\n");
+
+    /* TEST: Remove reference langauges. */
+    transtext_reflangs_clearall();
+
+    DEBUG("`transtext_reflangs_clearall` test passed.\n");
+
+    /* TEST: Free transtexts. */
+    transtext_free(tt_1);
+    transtext_free(tt_2);
+
+    DEBUG("`transtext_free` test passed if you see no leaks.\n");
 }
 #endif

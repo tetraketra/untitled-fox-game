@@ -46,8 +46,7 @@ void sdlext_init(
 
     *quit = false;
     if (*quit) {
-        ERROR("Failed to initialize SDL_bool.\n");
-        INFO("If this doesn't work on your computer, seek help.");
+        INFO("If this doesn't work on your computer, seek help.\n");
         exit(EXIT_FAILURE);
     }
 }

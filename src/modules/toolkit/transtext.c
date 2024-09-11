@@ -83,7 +83,7 @@ bool transtext_translation_add(transtext_t* transtext, const char* lang, const c
     }
 
     size_t text_len = strlen(text);
-    transtext->_translations[index] = malloc(text_len + 1);
+    transtext->_translations[index] = calloc(1, text_len + 1);
     strncpy(transtext->_translations[index], text, text_len);
     transtext->_translations[index][text_len] = '\0';
 
@@ -111,8 +111,7 @@ char* transtext_translation_get(transtext_t* transtext) {
     @returns Pointer to the new transtext.
 */
 transtext_t* transtext_init(void) {
-    transtext_t* transtext = malloc(sizeof(transtext_t));
-    *transtext = (transtext_t){0};
+    transtext_t* transtext = calloc(1, sizeof(transtext_t));
 
     return transtext;
 }

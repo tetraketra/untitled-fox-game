@@ -10,10 +10,9 @@ static void __attribute__((constructor)) test_hashtable(void) {
     RUNTIME_ASSERT(htable->capacity == 100);
     RUNTIME_ASSERT(htable->count == 0);
     RUNTIME_ASSERT(htable->max_load == 0.8f);
-    DEBUG("`hashtable_init` test passed.\n");
 
     /* TEST: Insert some handles to trigger some rehashes. */
-    DEBUG("`hashtable_insert` test starting. Expect 5 rehashes.\n");
+    DEBUG("`hashtable` testing starting. Expect 5 rehash pings.\n");
     for (int i = 0; i < 2000; i++) {
         int* heap_int_key = malloc(sizeof(int));
         *heap_int_key = i;
@@ -30,7 +29,6 @@ static void __attribute__((constructor)) test_hashtable(void) {
     RUNTIME_ASSERT(htable->capacity == 3200);
     RUNTIME_ASSERT(htable->count == 2000);
     RUNTIME_ASSERT(htable->max_load == 0.8f);
-    DEBUG("`hashtable_insert` test passed.\n");
 
     /* TEST: Get all keys just inserted. */
     for (int i = 0; i < 2000; i++) {
@@ -49,7 +47,6 @@ static void __attribute__((constructor)) test_hashtable(void) {
     RUNTIME_ASSERT(htable->capacity == 3200);
     RUNTIME_ASSERT(htable->count == 2000);
     RUNTIME_ASSERT(htable->max_load == 0.8f);
-    DEBUG("`hashtable_lookup` test passed.\n");
 
     /* TEST: Get and delete only some elements. */
     for (int i = 0; i < 1000; i++) {
@@ -69,7 +66,6 @@ static void __attribute__((constructor)) test_hashtable(void) {
     RUNTIME_ASSERT(htable->capacity == 3200);
     RUNTIME_ASSERT(htable->count == 1000);
     RUNTIME_ASSERT(htable->max_load == 0.8f);
-    DEBUG("`hashtable_remove` test passed.\n");
 
     /* TEST: Insert new values for all elements. */
     for (int i = 0; i < 2000; i++) {
@@ -91,7 +87,6 @@ static void __attribute__((constructor)) test_hashtable(void) {
     RUNTIME_ASSERT(htable->capacity == 3200);
     RUNTIME_ASSERT(htable->count == 2000);
     RUNTIME_ASSERT(htable->max_load == 0.8f);
-    DEBUG("`hashtable_insert` overwriting test passed.\n");
 
     /* TEST: Check all keys exist. */
     for (int i = 0; i < 2000; i++) {
@@ -121,11 +116,10 @@ static void __attribute__((constructor)) test_hashtable(void) {
     RUNTIME_ASSERT(htable->capacity == 3200);
     RUNTIME_ASSERT(htable->count == 2000);
     RUNTIME_ASSERT(htable->max_load == 0.8f);
-    DEBUG("`hashtable_contains` test passed.\n");
 
     /* TEST: Free the hash table and all remaining values. */
     hashtable_free(htable, true);
-    DEBUG("`hashtable_free` test passed if you see no leaks.\n");
+    DEBUG("`hashtable` tests passed.\n");
 }
 #endif
 
@@ -163,7 +157,6 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
     
     /* TEST: Initialize a doubly linked list. */
     dlinkedlist_t* dlinkedlist = dlinkedlist_init();
-    DEBUG("`dlinkedlist_init` test passed.\n");
     
     /* TEST: Push entries to the head of the doubly linked list. */
     for (size_t i = 5; i > 0; i--) {
@@ -175,7 +168,6 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
     } /* push [500, ..., 100] to head to get list [100, ..., 500]. */
 
     RUNTIME_ASSERT(dlinkedlist->entries_n == 5);
-    DEBUG("`dlinkedlist_push_head` test passed.\n");
 
     /* TEST: Push entries to the tail of the doubly linked list. */
     for (size_t i = 6; i < 11; i++) {
@@ -187,7 +179,6 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
     } /* push [600, ..., 1000] to head to get list [100, ..., 1000]. */
 
     RUNTIME_ASSERT(dlinkedlist->entries_n == 10);
-    DEBUG("`dlinkedlist_push_tail` test passed.\n");
 
     /* TEST: Verify directly that all values were pushed correctly. */
     dlinkedlist_entry_t* entry = dlinkedlist->head;
@@ -201,8 +192,6 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
         }
     }
 
-    DEBUG("`dlinkedlist_push_[...]` tests passed.\n");
-
     /* TEST: Get values at specific indices. */
     for (size_t i = 0; i < 10; i++) {
         int val1 = (i+1)*100;
@@ -210,8 +199,6 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
 
         RUNTIME_ASSERT(val1 == *val2);
     }
-
-    DEBUG("`dlinkedlist_get` test passed.\n");
 
     /* TEST: Set values at specific indices. */
     for (size_t i = 0; i < 10; i++) {
@@ -227,8 +214,6 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
         
     } /* List is now [1000, ..., 10000]. */
 
-    DEBUG("`dlinkedlist_set` test passed.\n");
-
     /* TEST: Pop values from the head of the doubly linked list. */
     for (size_t i = 0; i < 3; i++) {
         int* val = (int*)dlinkedlist_pop_head(dlinkedlist).data;
@@ -237,8 +222,6 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
 
         FREE(val);
     } /* List is now [4000, ..., 10000]. */
-
-    DEBUG("`dlinkedlist_pop_head` test passed.\n");
 
     /* TEST: Pop values from the tail of the doubly linked list. */
     for (size_t i = 10; i > 7; i--) {
@@ -249,17 +232,13 @@ static void __attribute__((constructor)) test_dlinkedlist(void) {
         FREE(val);
     } /* List is now [4000, ..., 7000]. */
 
-    DEBUG("`dlinkedlist_pop_tail` test passed.\n");
-
     /* TEST: Verify length has changed from previous two tests. */
     RUNTIME_ASSERT(dlinkedlist->entries_n == 4);
-    
-    DEBUG("`dlinkedlist_pop_[...]` tests passed.\n");
 
     /* TEST: Free a doubly linked list. */
     dlinkedlist_free(dlinkedlist, true);
     
-    DEBUG("`dlinkedlist_free` test passed if you see no leaks.\n");
+    DEBUG("`dlinkedlist` tests passed.\n");
 }
 #endif
 
@@ -272,8 +251,6 @@ static void __attribute__((constructor)) test_transtext(void) {
     transtext_reflangs_add("english");
     transtext_reflangs_add("spanish");
 
-    DEBUG("`transtext_reflangs_add` test passed.\n");
-
     /* TEST: Initialize transtexts. */
     transtext_t* tt_1 = transtext_init();
     transtext_t* tt_2 = transtext_init();
@@ -282,8 +259,6 @@ static void __attribute__((constructor)) test_transtext(void) {
         RUNTIME_ASSERT(tt_2->_translations[i] == NULL);
     }
 
-    DEBUG("`transtext_init` test passed.\n");
-
     /* TEST: Add some translations to the transtexts. */
     transtext_translation_add(tt_1, "english", "unicode english 😈");
     transtext_translation_add(tt_1, "spanish", "unicode español 😈");
@@ -291,12 +266,8 @@ static void __attribute__((constructor)) test_transtext(void) {
     RUNTIME_ASSERT(strcmp(tt_1->_translations[0], "unicode english 😈") == 0);
     RUNTIME_ASSERT(strcmp(tt_1->_translations[1], "unicode español 😈") == 0);
 
-    DEBUG("`transtext_translation_add` test passed.\n");
-
     /* TEST: Select a language. */
     transtext_reflang_select("spanish");
-
-    DEBUG("`transtext_reflang_select` test passed.\n");
 
     /* TEST: Get the current translation. */
     RUNTIME_ASSERT(strcmp(transtext_translation_get(tt_1), "unicode español 😈") == 0);
@@ -305,17 +276,49 @@ static void __attribute__((constructor)) test_transtext(void) {
     transtext_reflang_select("asdfasdfasdf");
     RUNTIME_ASSERT(strcmp(transtext_translation_get(tt_1), "unicode english 😈") == 0);
 
-    DEBUG("`transtext_translation_get` test passed.\n");
-
     /* TEST: Remove reference langauges. */
     transtext_reflangs_clearall();
-
-    DEBUG("`transtext_reflangs_clearall` test passed.\n");
 
     /* TEST: Free transtexts. */
     transtext_free(tt_1);
     transtext_free(tt_2);
 
-    DEBUG("`transtext_free` test passed if you see no leaks.\n");
+    DEBUG("`transtext` tests passed.\n");
 }
+#endif
+
+/* === RUN-LENGTH ENCODING === */
+#if __has_include("toolkit/rle.h")
+#include "toolkit/rle.h"
+
+static void __attribute__((constructor)) test_rle(void) {
+    int16_t data[] = {1, 2, 2, 2, 5, 5, 6, 6};
+    rle_t rle = rle_encode_int16_t(data, ARRAY_LEN(data));
+    arr_int16_t rle_decoded = rle_decode_int16_t(rle);
+
+    for (size_t i = 0; i < 8; i++) {
+        RUNTIME_ASSERT(data[i] == rle_decoded.data[i]);
+    }
+
+    FREE(rle.data);
+    FREE(rle_decoded.data);
+
+    arr_int16_t data2 = {.data = calloc(8, sizeof(int16_t)), .len = 8};
+    for (size_t i = 0; i < 8; i++) {
+        data2.data[i] = data[i];
+    }
+
+    rle_t rle2 = rle_encode_arr_int16_t(data2);
+    arr_int16_t rle_decoded2 = rle_decode_int16_t(rle2);
+
+    for (size_t i = 0; i < 8; i++) {
+        RUNTIME_ASSERT(data2.data[i] == rle_decoded2.data[i]);
+    }
+
+    FREE(data2.data);
+    FREE(rle2.data);
+    FREE(rle_decoded2.data);
+    
+    DEBUG("`rle` tests passed.\n");
+};
 #endif

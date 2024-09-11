@@ -1,12 +1,7 @@
 #ifndef SDLEXT_KEYS_H
 #define SDLEXT_KEYS_H
 
-#include <SDL3/SDL_scancode.h>
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-
-#include "toolkit/toolkit.h"
-#include "toolkit/time.h"
+#include "sdlext.h"
 
 /* HINT: There's stuff waaaaaay down there. ↓ */
 
@@ -261,7 +256,6 @@
     X(SDL_SCANCODE_RESERVED) \
     X(SDL_NUM_SCANCODES)
 
-/* Tracker struct for a single physical key (SDL scancode). */
 typedef struct SDLEXT_Key {
     timestamp_t last_down;
     timestamp_t last_up;
@@ -270,7 +264,6 @@ typedef struct SDLEXT_Key {
     int _sdl_scancode; /* The internal SDL scancode associated with this key struct. */
 } SDLEXT_Key;
 
-/* Tracker struct for all possible SDLEXT_Keys (all SDL scancodes). */
 typedef struct SDLEXT_Keys {
     #define SDL_SCANCODE_TO_SDLEXT_KEY(sdl_scancode) key_##sdl_scancode
     #define X(key) SDLEXT_Key SDL_SCANCODE_TO_SDLEXT_KEY(key);

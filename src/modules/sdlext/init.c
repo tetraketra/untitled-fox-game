@@ -36,7 +36,7 @@ void sdlext_init(
 
     /* SDL window. */
     *window = NULL;
-    if ((*window=SDL_CreateWindow("!yippie!", WINDOW_INIT_WIDTH, WINDOW_INIT_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE)) == NULL) {
+    if ((*window=SDL_CreateWindow("!yippie!", WINDOW_INIT_WIDTH, WINDOW_INIT_HEIGHT, SDL_WINDOW_OPENGL)) == NULL) {
         ERROR("Could not initialize SDL_Window: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }

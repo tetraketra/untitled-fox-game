@@ -84,7 +84,7 @@ bool transtext_translation_add(transtext_t* transtext, const char* lang, const c
 
     size_t text_len = strlen(text);
     transtext->_translations[index] = calloc(1, text_len + 1);
-    strncpy(transtext->_translations[index], text, text_len);
+    strncpy(transtext->_translations[index], text, text_len + 1);
     transtext->_translations[index][text_len] = '\0';
 
     return true; /* done */ /* translation added */

@@ -12,9 +12,10 @@ void sdlext_init(
     SDL_GLContext* context, 
     SDL_Event* event,
     SDL_bool* quit,
-    SDLEXT_Keys* keys,
-    SDLEXT_Mouse* mouse,
-    SDLEXT_Window* window2
+    SDLEXT_Keys* sdlext_keys,
+    SDLEXT_Mouse* sdlext_mouse,
+    SDLEXT_Window* sdlext_window,
+    SDLEXT_OpenGL* sdlext_opengl
 ) {
 
     /* Setup. */
@@ -51,6 +52,9 @@ void sdlext_init(
     /* Post-context GL. */
     gladLoadGL();
     glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+    glGenBuffers(1, &sdlext_opengl->vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, sdlext_opengl->vbo);
+    sdlext_opengl->shader_programs = hashtable_init(24, NULL, 0.8);
 
     /* SDL event. */
     *event = (SDL_Event){0};
@@ -67,22 +71,22 @@ void sdlext_init(
     }
 
     /* SDLEXT keys. */
-    *keys = (SDLEXT_Keys){0};
-    if (keys->key_SDL_SCANCODE_0.is_down != false) {
+    *sdlext_keys = (SDLEXT_Keys){0};
+    if (sdlext_keys->key_SDL_SCANCODE_0.is_down != false) {
         ERROR("Failed to initialize SDLEXT_Keys.\n");
         exit(EXIT_FAILURE);
     }
 
     /* SDLEXT mouse. */
-    *mouse = (SDLEXT_Mouse){.scroll_sensivitiy = 1.0f};
-    if (mouse->x != 0) {
+    *sdlext_mouse = (SDLEXT_Mouse){.scroll_sensivitiy = 1.0f};
+    if (sdlext_mouse->x != 0) {
         ERROR("Failed to initialize SDLEXT_Mouse.\n");
         exit(EXIT_FAILURE);
     }
 
     /* SDLEXT window. */
-    *window2 = (SDLEXT_Window){.window = *window, .height = WINDOW_INIT_HEIGHT, .width = WINDOW_INIT_WIDTH};
-    if (window2->window != *window) {
+    *sdlext_window = (SDLEXT_Window){.window = *window, .height = WINDOW_INIT_HEIGHT, .width = WINDOW_INIT_WIDTH};
+    if (sdlext_window->window != *window) {
         ERROR("Failed to initialize SDLEXT_Window.\n");
         exit(EXIT_FAILURE);
     }
@@ -97,8 +101,11 @@ void sdlext_init(
 */
 void sdlext_exit(
     SDL_Window** window, 
-    SDL_GLContext* context
+    SDL_GLContext* context,
+    SDLEXT_OpenGL* sdlext_opengl
 ) {
+    hashtable_free(sdlext_opengl->shader_programs, true);
+
     SDL_GL_DestroyContext(*context);
     SDL_DestroyWindow(*window);
     SDL_Quit();

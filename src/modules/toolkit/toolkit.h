@@ -120,23 +120,23 @@
 #define GENERIC_DEFAULT definitely_valid_execution_path()
 char* definitely_valid_execution_path();
 
-/* Family of sized arrays of different types (see: `DEFFINE_ARR_FOR_TYPE`). */
-#define DEFFINE_ARR_FOR_TYPE(type) \
+/* Family of sized arrays of different types (see: `DEFINE_ARR_FOR_TYPE`). */
+#define DEFINE_ARR_FOR_TYPE(type) \
     typedef struct arr_##type { \
         type* data; \
         size_t len; \
     } arr_##type;
 
-DEFFINE_ARR_FOR_TYPE(int8_t);
-DEFFINE_ARR_FOR_TYPE(int16_t);
-DEFFINE_ARR_FOR_TYPE(int32_t);
-DEFFINE_ARR_FOR_TYPE(int64_t);
-DEFFINE_ARR_FOR_TYPE(uint8_t);
-DEFFINE_ARR_FOR_TYPE(uint16_t);
-DEFFINE_ARR_FOR_TYPE(uint32_t);
-DEFFINE_ARR_FOR_TYPE(uint64_t);
-DEFFINE_ARR_FOR_TYPE(float);
-DEFFINE_ARR_FOR_TYPE(double);
-DEFFINE_ARR_FOR_TYPE(char);
+DEFINE_ARR_FOR_TYPE(int8_t);
+DEFINE_ARR_FOR_TYPE(int16_t);
+DEFINE_ARR_FOR_TYPE(int32_t);
+DEFINE_ARR_FOR_TYPE(int64_t);
+DEFINE_ARR_FOR_TYPE(uint8_t);
+DEFINE_ARR_FOR_TYPE(uint16_t);
+DEFINE_ARR_FOR_TYPE(uint32_t);
+DEFINE_ARR_FOR_TYPE(uint64_t);
+DEFINE_ARR_FOR_TYPE(float);
+DEFINE_ARR_FOR_TYPE(double);
+DEFINE_ARR_FOR_TYPE(char);
 
 #endif

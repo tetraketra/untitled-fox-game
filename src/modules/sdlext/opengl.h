@@ -6,6 +6,7 @@
 #include "toolkit/hashtable.h"
 
 typedef unsigned int gl_vbo_t;
+typedef unsigned int gl_tex_t;
 
 typedef struct SDLEXT_OpenGL {
     gl_vbo_t vbo; /* Vertex Buffer Obejct */

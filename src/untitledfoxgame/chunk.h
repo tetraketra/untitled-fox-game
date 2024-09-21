@@ -33,14 +33,14 @@ typedef struct chunk_t {
 
 /* Returns the `is_solid` bit for the given vertex in the chunk (coordinates relative to chunk origin). */
 #define CHUNK_GET_IS_SOLID(chunk, x, y, z) \
-    ((chunk.is_solid[CHUNK_FLAT(x, y, z) / 64] >> (CHUNK_FLAT(x, y, z) % 64)) & 1)
+    ((chunk.is_solid[CHUNK_FLAT(x, y, z) / UFG_CHUNK_SIZE] >> (CHUNK_FLAT(x, y, z) % UFG_CHUNK_SIZE)) & 1)
 
 /* Sets high the `is_solid` bit for the given vertex in the chunk (coordinates relative to chunk origin). */
 #define CHUNK_SET_IS_SOLID_HIGH(chunk, x, y, z) \
-    (chunk.is_solid[CHUNK_FLAT(x, y, z) / 64] |= ((uint64_t)1 << (CHUNK_FLAT(x, y, z) % 64)))
+    (chunk.is_solid[CHUNK_FLAT(x, y, z) / UFG_CHUNK_SIZE] |= ((uint64_t)1 << (CHUNK_FLAT(x, y, z) % UFG_CHUNK_SIZE)))
 
 /* Sets low the `is_solid` bit for the given vertex in the chunk (coordinates relative to chunk origin). */
 #define CHUNK_SET_IS_SOLID_LOW(chunk, x, y, z) \
-    (chunk.is_solid[CHUNK_FLAT(x, y, z) / 64] &= ~((uint64_t)1 << (CHUNK_FLAT(x, y, z) % 64)))
+    (chunk.is_solid[CHUNK_FLAT(x, y, z) / UFG_CHUNK_SIZE] &= ~((uint64_t)1 << (CHUNK_FLAT(x, y, z) % UFG_CHUNK_SIZE)))
 
 #endif
